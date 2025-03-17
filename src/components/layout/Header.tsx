@@ -2,15 +2,43 @@
 
 import Link from 'next/link';
 import { FiShoppingCart, FiUser, FiMenu } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { totalItems } = useCart();
 
+  // Handle scroll to determine if we should add shadow
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    // Initial check
+    handleScroll();
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="bg-white shadow-sm">
+    <header 
+      className={`bg-white ${
+        isScrolled 
+          ? 'shadow-md border-b-0 py-2' 
+          : 'shadow-sm border-b border-gray-100 py-3'
+      } sticky top-0 z-50 transition-all duration-300`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
