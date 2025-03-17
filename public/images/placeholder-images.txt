@@ -1,0 +1,16 @@
+Since the actual image files are missing, you can use placeholder images for development:
+
+1. For coffee product images (lightmode.jpg, darkmode.jpg, etc.), you can use:
+   - https://placehold.co/600x600/f8f9fa/212529?text=Lightmode
+   - https://placehold.co/600x600/212529/f8f9fa?text=Darkmode
+   - https://placehold.co/600x600/e9ecef/495057?text=Function
+   - https://placehold.co/600x600/495057/e9ecef?text=Recursive
+   - https://placehold.co/600x600/adb5bd/212529?text=Boolean
+   - https://placehold.co/600x600/212529/adb5bd?text=Async
+
+2. For the hero background:
+   - https://placehold.co/1920x1080/6c757d/f8f9fa?text=Coffee+Beans
+
+To use these, you can either:
+1. Download these images and save them to the /public/images/ directory
+2. Or modify the image paths in the data/products.ts file to use these URLs directly 

@@ -1,0 +1,10 @@
+This directory contains image assets for The Boring Coffee website.
+
+Note: The actual image files need to be added to this directory:
+- hero-bg.jpg
+- lightmode.jpg
+- darkmode.jpg
+- function.jpg
+- recursive.jpg
+- boolean.jpg
+- async.jpg 
