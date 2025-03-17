@@ -12,11 +12,28 @@ type ProductSliderProps = {
 };
 
 export default function ProductSlider({ products }: ProductSliderProps) {
+  // Make sure lightmode (id=1) is always the first product (left side)
+  // and darkmode is always the second product (right side)
+  const sortedProducts = [...products].sort((a, b) => {
+    // Put lightmode first
+    if (a.image_url === 'lightmode') return -1;
+    if (b.image_url === 'lightmode') return 1;
+    // Then darkmode
+    if (a.image_url === 'darkmode') return -1;
+    if (b.image_url === 'darkmode') return 1;
+    // Then others
+    return 0;
+  });
+  
   // Use only the first two products for comparison
-  const limitedProducts = products.slice(0, 2);
+  const limitedProducts = sortedProducts.slice(0, 2);
+  
+  // Ensure we have the correct products in the correct positions
+  const leftProduct = limitedProducts.find(p => p.image_url === 'lightmode') || limitedProducts[0];
+  const rightProduct = limitedProducts.find(p => p.image_url === 'darkmode') || limitedProducts[1];
   
   const [isDragging, setIsDragging] = useState(false);
-  const [dragPosition, setDragPosition] = useState(50); // Start at 50% position
+  const [dragPosition, setDragPosition] = useState(0); // Start at 0% position (first product fully visible)
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -74,12 +91,33 @@ export default function ProductSlider({ products }: ProductSliderProps) {
     }
   };
 
-  // Get the current products - always use fixed indices
-  const currentProduct = limitedProducts[0]; // Always use first product as left side
-  const nextProduct = limitedProducts[1];    // Always use second product as right side
-  
   // Determine which product to display based on drag position
-  const displayedProduct = dragPosition > 50 ? nextProduct : currentProduct;
+  const displayedProduct = dragPosition > 50 ? rightProduct : leftProduct;
+
+  // Get background colors based on product types
+  const getProductBackgroundColor = (product: Product) => {
+    return product.image_url === 'lightmode' ? '#f8fafc' : 
+           product.image_url === 'darkmode' ? '#1e293b' :
+           product.image_url === 'function' ? '#475569' :
+           product.image_url === 'recursive' ? '#334155' :
+           product.image_url === 'boolean' ? '#64748b' :
+           product.image_url === 'async' ? '#3b82f6' : '#e2e8f0';
+  };
+  
+  const getProductCupColor = (product: Product) => {
+    return product.image_url === 'lightmode' ? '#e2e8f0' : 
+           product.image_url === 'darkmode' ? '#0f172a' :
+           product.image_url === 'function' ? '#334155' :
+           product.image_url === 'recursive' ? '#1e293b' :
+           product.image_url === 'boolean' ? '#475569' :
+           product.image_url === 'async' ? '#2563eb' : '#cbd5e1';
+  };
+  
+  const isProductDark = (product: Product) => {
+    return product.image_url === 'darkmode' || 
+           product.image_url === 'recursive' || 
+           product.image_url === 'function';
+  };
 
   return (
     <div className="mb-12">
@@ -98,16 +136,11 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               ref={imageContainerRef}
               className="relative w-full h-full overflow-hidden"
             >
-              {/* Background product (fixed) */}
+              {/* Background product (fixed) - right side product */}
               <div 
                 className="absolute inset-0 z-10 transition-colors duration-500"
                 style={{ 
-                  backgroundColor: nextProduct.image_url === 'lightmode' ? '#f8fafc' : 
-                                  nextProduct.image_url === 'darkmode' ? '#1e293b' :
-                                  nextProduct.image_url === 'function' ? '#475569' :
-                                  nextProduct.image_url === 'recursive' ? '#334155' :
-                                  nextProduct.image_url === 'boolean' ? '#64748b' :
-                                  nextProduct.image_url === 'async' ? '#3b82f6' : '#e2e8f0'
+                  backgroundColor: getProductBackgroundColor(leftProduct)
                 }}
               >
                 {/* Coffee cup icon */}
@@ -116,34 +149,29 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                     <div 
                       className="w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500"
                       style={{
-                        backgroundColor: nextProduct.image_url === 'lightmode' ? '#e2e8f0' : 
-                                        nextProduct.image_url === 'darkmode' ? '#0f172a' :
-                                        nextProduct.image_url === 'function' ? '#334155' :
-                                        nextProduct.image_url === 'recursive' ? '#1e293b' :
-                                        nextProduct.image_url === 'boolean' ? '#475569' :
-                                        nextProduct.image_url === 'async' ? '#2563eb' : '#cbd5e1',
+                        backgroundColor: getProductCupColor(leftProduct),
                         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)'
                       }}
                     >
                       <svg className="w-24 h-24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path 
                           d="M2 8H18V17C18 19.2091 16.2091 21 14 21H6C3.79086 21 2 19.2091 2 17V8Z" 
-                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.2"
                         />
                         <path 
                           d="M18 8H2V7C2 4.79086 3.79086 3 6 3H14C16.2091 3 18 4.79086 18 7V8Z" 
-                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.4"
                         />
                         <path 
                           d="M18 10H22C22.5523 10 23 10.4477 23 11V13C23 14.6569 21.6569 16 20 16H18V10Z" 
-                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.3"
                         />
                         <path 
                           d="M9.5 8C9.5 7.17157 10.1716 6.5 11 6.5H12C12.8284 6.5 13.5 7.17157 13.5 8V8H9.5V8Z" 
-                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.5"
                         />
                       </svg>
@@ -155,22 +183,17 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                       <div className="w-1 h-5 bg-white bg-opacity-30 rounded-full animate-steam3 delay-300"></div>
                     </div>
                   </div>
-                  <div className={`text-2xl font-bold transition-colors duration-500 ${nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'text-white' : 'text-gray-800'}`}>
-                    {nextProduct.name}
+                  <div className={`text-2xl font-bold transition-colors duration-500 ${isProductDark(leftProduct) ? 'text-white' : 'text-gray-800'}`}>
+                    {leftProduct.name}
                   </div>
                 </div>
               </div>
               
-              {/* Foreground product (revealed with clip-path) */}
+              {/* Foreground product (revealed with clip-path) - left side product */}
               <div 
                 className="absolute inset-0 z-20 transition-all duration-300 ease-out"
                 style={{ 
-                  backgroundColor: currentProduct.image_url === 'lightmode' ? '#f8fafc' : 
-                                  currentProduct.image_url === 'darkmode' ? '#1e293b' :
-                                  currentProduct.image_url === 'function' ? '#475569' :
-                                  currentProduct.image_url === 'recursive' ? '#334155' :
-                                  currentProduct.image_url === 'boolean' ? '#64748b' :
-                                  currentProduct.image_url === 'async' ? '#3b82f6' : '#e2e8f0',
+                  backgroundColor: getProductBackgroundColor(leftProduct),
                   clipPath: `polygon(0 0, ${dragPosition}% 0, ${dragPosition}% 100%, 0 100%)`,
                   transition: isDragging ? 'none' : 'clip-path 0.3s ease-out, background-color 0.5s'
                 }}
@@ -181,34 +204,29 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                     <div 
                       className="w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500"
                       style={{
-                        backgroundColor: currentProduct.image_url === 'lightmode' ? '#e2e8f0' : 
-                                        currentProduct.image_url === 'darkmode' ? '#0f172a' :
-                                        currentProduct.image_url === 'function' ? '#334155' :
-                                        currentProduct.image_url === 'recursive' ? '#1e293b' :
-                                        currentProduct.image_url === 'boolean' ? '#475569' :
-                                        currentProduct.image_url === 'async' ? '#2563eb' : '#cbd5e1',
+                        backgroundColor: getProductCupColor(leftProduct),
                         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)'
                       }}
                     >
                       <svg className="w-24 h-24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path 
                           d="M2 8H18V17C18 19.2091 16.2091 21 14 21H6C3.79086 21 2 19.2091 2 17V8Z" 
-                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.2"
                         />
                         <path 
                           d="M18 8H2V7C2 4.79086 3.79086 3 6 3H14C16.2091 3 18 4.79086 18 7V8Z" 
-                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.4"
                         />
                         <path 
                           d="M18 10H22C22.5523 10 23 10.4477 23 11V13C23 14.6569 21.6569 16 20 16H18V10Z" 
-                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.3"
                         />
                         <path 
                           d="M9.5 8C9.5 7.17157 10.1716 6.5 11 6.5H12C12.8284 6.5 13.5 7.17157 13.5 8V8H9.5V8Z" 
-                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
                           fillOpacity="0.5"
                         />
                       </svg>
@@ -220,8 +238,8 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                       <div className="w-1 h-5 bg-white bg-opacity-30 rounded-full animate-steam3 delay-300"></div>
                     </div>
                   </div>
-                  <div className={`text-2xl font-bold transition-colors duration-500 ${currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'text-white' : 'text-gray-800'}`}>
-                    {currentProduct.name}
+                  <div className={`text-2xl font-bold transition-colors duration-500 ${isProductDark(leftProduct) ? 'text-white' : 'text-gray-800'}`}>
+                    {leftProduct.name}
                   </div>
                 </div>
               </div>
@@ -274,7 +292,9 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                     {displayedProduct.name}
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    {displayedProduct === nextProduct ? `Drag left to see ${currentProduct.name}` : `Drag right to see ${nextProduct.name}`}
+                    {displayedProduct === rightProduct ? 
+                      `Drag left to see ${leftProduct.name}` : 
+                      `Drag right to see ${rightProduct.name}`}
                   </p>
                 </div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
@@ -288,12 +308,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                     <div 
                       className="w-10 h-10 rounded-full mr-3 transition-all duration-300"
                       style={{
-                        backgroundColor: displayedProduct.image_url === 'lightmode' ? '#e2e8f0' : 
-                                             displayedProduct.image_url === 'darkmode' ? '#0f172a' :
-                                             displayedProduct.image_url === 'function' ? '#334155' :
-                                             displayedProduct.image_url === 'recursive' ? '#1e293b' :
-                                             displayedProduct.image_url === 'boolean' ? '#475569' :
-                                             displayedProduct.image_url === 'async' ? '#2563eb' : '#cbd5e1'
+                        backgroundColor: getProductCupColor(displayedProduct)
                       }}
                     ></div>
                     <div>
