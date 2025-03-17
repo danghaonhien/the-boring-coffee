@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
@@ -12,30 +13,37 @@ type ProductSliderProps = {
 };
 
 export default function ProductSlider({ products }: ProductSliderProps) {
-  // Make sure lightmode (id=1) is always the first product (left side)
-  // and darkmode is always the second product (right side)
-  const sortedProducts = [...products].sort((a, b) => {
-    // Put lightmode first
-    if (a.image_url === 'lightmode') return -1;
-    if (b.image_url === 'lightmode') return 1;
-    // Then darkmode
-    if (a.image_url === 'darkmode') return -1;
-    if (b.image_url === 'darkmode') return 1;
-    // Then others
-    return 0;
-  });
+  // Manually select the products for the slider positions
+  // Find products
+  const lightProduct = products.find(p => p.name.toLowerCase() === 'lightmode') || products[0];
+  const darkProduct = products.find(p => p.name.toLowerCase() === 'darkmode') || products[products.length > 1 ? 1 : 0];
   
-  // Use only the first two products for comparison
-  const limitedProducts = sortedProducts.slice(0, 2);
-  
-  // Ensure we have the correct products in the correct positions
-  const leftProduct = limitedProducts.find(p => p.image_url === 'lightmode') || limitedProducts[0];
-  const rightProduct = limitedProducts.find(p => p.image_url === 'darkmode') || limitedProducts[1];
+  // Left side is Lightmode, right side is Darkmode
+  const leftProduct = lightProduct;
+  const rightProduct = darkProduct;
   
   const [isDragging, setIsDragging] = useState(false);
-  const [dragPosition, setDragPosition] = useState(0); // Start at 0% position (first product fully visible)
+  // Start at 100% position showing Darkmode
+  const [dragPosition, setDragPosition] = useState(100); 
+  const [isAnimating, setIsAnimating] = useState(false);
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
+
+  // Effect to trigger animation after 5 seconds
+  useEffect(() => {
+    const animationDelay = setTimeout(() => {
+      setIsAnimating(true);
+      
+      // Reset animation after it completes
+      const resetAnimation = setTimeout(() => {
+        setIsAnimating(false);
+      }, 3000); // Animation runs for 3 seconds
+      
+      return () => clearTimeout(resetAnimation);
+    }, 5000); // Start animation after 5 seconds
+    
+    return () => clearTimeout(animationDelay);
+  }, []);
 
   const handleButtonDragStart = (e: React.TouchEvent | React.MouseEvent) => {
     e.stopPropagation();
@@ -92,32 +100,12 @@ export default function ProductSlider({ products }: ProductSliderProps) {
   };
 
   // Determine which product to display based on drag position
-  const displayedProduct = dragPosition > 50 ? rightProduct : leftProduct;
-
-  // Get background colors based on product types
-  const getProductBackgroundColor = (product: Product) => {
-    return product.image_url === 'lightmode' ? '#f8fafc' : 
-           product.image_url === 'darkmode' ? '#1e293b' :
-           product.image_url === 'function' ? '#475569' :
-           product.image_url === 'recursive' ? '#334155' :
-           product.image_url === 'boolean' ? '#64748b' :
-           product.image_url === 'async' ? '#3b82f6' : '#e2e8f0';
-  };
-  
-  const getProductCupColor = (product: Product) => {
-    return product.image_url === 'lightmode' ? '#e2e8f0' : 
-           product.image_url === 'darkmode' ? '#0f172a' :
-           product.image_url === 'function' ? '#334155' :
-           product.image_url === 'recursive' ? '#1e293b' :
-           product.image_url === 'boolean' ? '#475569' :
-           product.image_url === 'async' ? '#2563eb' : '#cbd5e1';
-  };
-  
-  const isProductDark = (product: Product) => {
-    return product.image_url === 'darkmode' || 
-           product.image_url === 'recursive' || 
-           product.image_url === 'function';
-  };
+  // The visual representation works as follows:
+  // - When drag position is between 0-50%, more of the left product (lightmode) is visible
+  // - When drag position is >50%, more of the right product (darkmode) is visible
+  // Since we use clip-path with "polygon(0 0, ${dragPosition}% 0, ${dragPosition}% 100%, 0 100%)"
+  // for leftProduct, smaller dragPosition means less leftProduct is shown (more rightProduct visible)
+  const displayedProduct = dragPosition <= 50 ? rightProduct : leftProduct;
 
   return (
     <div className="mb-12">
@@ -139,52 +127,23 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               {/* Background product (fixed) - right side product */}
               <div 
                 className="absolute inset-0 z-10 transition-colors duration-500"
-                style={{ 
-                  backgroundColor: getProductBackgroundColor(leftProduct)
-                }}
               >
-                {/* Coffee cup icon */}
-                <div className="w-full h-full flex flex-col items-center justify-center">
-                  <div className="mb-6 relative">
-                    <div 
-                      className="w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500"
-                      style={{
-                        backgroundColor: getProductCupColor(leftProduct),
-                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)'
-                      }}
-                    >
-                      <svg className="w-24 h-24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path 
-                          d="M2 8H18V17C18 19.2091 16.2091 21 14 21H6C3.79086 21 2 19.2091 2 17V8Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.2"
-                        />
-                        <path 
-                          d="M18 8H2V7C2 4.79086 3.79086 3 6 3H14C16.2091 3 18 4.79086 18 7V8Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.4"
-                        />
-                        <path 
-                          d="M18 10H22C22.5523 10 23 10.4477 23 11V13C23 14.6569 21.6569 16 20 16H18V10Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.3"
-                        />
-                        <path 
-                          d="M9.5 8C9.5 7.17157 10.1716 6.5 11 6.5H12C12.8284 6.5 13.5 7.17157 13.5 8V8H9.5V8Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.5"
-                        />
-                      </svg>
+                {/* Product Image */}
+                <div className="w-full h-full relative">
+                  {rightProduct.image_url && (
+                    <Image 
+                      src={rightProduct.image_url} 
+                      alt={rightProduct.name}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
+                  
+                  {/* Product name overlay - simplified */}
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black to-transparent py-4 px-4">
+                    <div className="text-2xl font-bold text-white">
+                      {rightProduct.name}
                     </div>
-                    {/* Steam */}
-                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                      <div className="w-1 h-6 bg-white bg-opacity-30 rounded-full animate-steam1"></div>
-                      <div className="w-1 h-8 bg-white bg-opacity-30 rounded-full animate-steam2 delay-150"></div>
-                      <div className="w-1 h-5 bg-white bg-opacity-30 rounded-full animate-steam3 delay-300"></div>
-                    </div>
-                  </div>
-                  <div className={`text-2xl font-bold transition-colors duration-500 ${isProductDark(leftProduct) ? 'text-white' : 'text-gray-800'}`}>
-                    {leftProduct.name}
                   </div>
                 </div>
               </div>
@@ -193,53 +152,26 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               <div 
                 className="absolute inset-0 z-20 transition-all duration-300 ease-out"
                 style={{ 
-                  backgroundColor: getProductBackgroundColor(leftProduct),
                   clipPath: `polygon(0 0, ${dragPosition}% 0, ${dragPosition}% 100%, 0 100%)`,
                   transition: isDragging ? 'none' : 'clip-path 0.3s ease-out, background-color 0.5s'
                 }}
               >
-                {/* Coffee cup icon */}
-                <div className="w-full h-full flex flex-col items-center justify-center">
-                  <div className="mb-6 relative">
-                    <div 
-                      className="w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500"
-                      style={{
-                        backgroundColor: getProductCupColor(leftProduct),
-                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)'
-                      }}
-                    >
-                      <svg className="w-24 h-24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path 
-                          d="M2 8H18V17C18 19.2091 16.2091 21 14 21H6C3.79086 21 2 19.2091 2 17V8Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.2"
-                        />
-                        <path 
-                          d="M18 8H2V7C2 4.79086 3.79086 3 6 3H14C16.2091 3 18 4.79086 18 7V8Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.4"
-                        />
-                        <path 
-                          d="M18 10H22C22.5523 10 23 10.4477 23 11V13C23 14.6569 21.6569 16 20 16H18V10Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.3"
-                        />
-                        <path 
-                          d="M9.5 8C9.5 7.17157 10.1716 6.5 11 6.5H12C12.8284 6.5 13.5 7.17157 13.5 8V8H9.5V8Z" 
-                          fill={isProductDark(leftProduct) ? 'white' : '#1e293b'} 
-                          fillOpacity="0.5"
-                        />
-                      </svg>
+                {/* Product Image */}
+                <div className="w-full h-full relative">
+                  {leftProduct.image_url && (
+                    <Image 
+                      src={leftProduct.image_url} 
+                      alt={leftProduct.name}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
+                  
+                  {/* Product name overlay - simplified */}
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black to-transparent py-4 px-4">
+                    <div className="text-2xl font-bold text-white">
+                      {leftProduct.name}
                     </div>
-                    {/* Steam */}
-                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                      <div className="w-1 h-6 bg-white bg-opacity-30 rounded-full animate-steam1"></div>
-                      <div className="w-1 h-8 bg-white bg-opacity-30 rounded-full animate-steam2 delay-150"></div>
-                      <div className="w-1 h-5 bg-white bg-opacity-30 rounded-full animate-steam3 delay-300"></div>
-                    </div>
-                  </div>
-                  <div className={`text-2xl font-bold transition-colors duration-500 ${isProductDark(leftProduct) ? 'text-white' : 'text-gray-800'}`}>
-                    {leftProduct.name}
                   </div>
                 </div>
               </div>
@@ -257,13 +189,31 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                 onMouseDown={handleButtonDragStart}
               >
                 {/* Drag handle */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform duration-200 hover:scale-110">
+                <div 
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform duration-200 hover:scale-110"
+                  style={{
+                    animation: isAnimating ? 'dragHandlePulse 3s ease-in-out' : 'none'
+                  }}
+                >
                   <div className="flex items-center space-x-0">
                     <FiChevronLeft className="h-5 w-5 text-gray-800" />
                     <FiChevronRight className="h-5 w-5 text-gray-800" />
                   </div>
                 </div>
               </div>
+              
+              {/* Add keyframes for the animation */}
+              <style jsx global>{`
+                @keyframes dragHandlePulse {
+                  0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+                  25% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 0 10px rgba(99, 102, 241, 0.2); }
+                  50% { transform: translate(-50%, -50%) scale(0.95); }
+                  75% { transform: translate(-50%, -50%) translateX(-15px) scale(1.1); }
+                  85% { transform: translate(-50%, -50%) translateX(15px) scale(1.1); }
+                  95% { transform: translate(-50%, -50%) translateX(-5px) scale(1); }
+                  100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+                }
+              `}</style>
               
               {/* Progress indicator at bottom */}
               <div className="absolute bottom-4 left-4 right-4 h-1 bg-gray-200 rounded-full overflow-hidden z-30">
@@ -307,9 +257,6 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   <div className="flex items-center">
                     <div 
                       className="w-10 h-10 rounded-full mr-3 transition-all duration-300"
-                      style={{
-                        backgroundColor: getProductCupColor(displayedProduct)
-                      }}
                     ></div>
                     <div>
                       <h4 className="font-medium text-gray-900">
