@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
@@ -23,27 +23,10 @@ export default function ProductSlider({ products }: ProductSliderProps) {
   const rightProduct = darkProduct;
   
   const [isDragging, setIsDragging] = useState(false);
-  // Start at 100% position showing Darkmode
-  const [dragPosition, setDragPosition] = useState(100); 
-  const [isAnimating, setIsAnimating] = useState(false);
+  // Start at 50% position showing both products equally
+  const [dragPosition, setDragPosition] = useState(50); 
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-
-  // Effect to trigger animation after 5 seconds
-  useEffect(() => {
-    const animationDelay = setTimeout(() => {
-      setIsAnimating(true);
-      
-      // Reset animation after it completes
-      const resetAnimation = setTimeout(() => {
-        setIsAnimating(false);
-      }, 3000); // Animation runs for 3 seconds
-      
-      return () => clearTimeout(resetAnimation);
-    }, 5000); // Start animation after 5 seconds
-    
-    return () => clearTimeout(animationDelay);
-  }, []);
 
   const handleButtonDragStart = (e: React.TouchEvent | React.MouseEvent) => {
     e.stopPropagation();
@@ -140,8 +123,8 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   )}
                   
                   {/* Product name overlay - simplified */}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black to-transparent py-4 px-4">
-                    <div className="text-2xl font-bold text-white">
+                  <div className="absolute bottom-0  inset-x-0 bg-gradient-to-t from-black to-transparent py-4 px-4">
+                    <div className="text-2xl font-bold text-white text-right">
                       {rightProduct.name}
                     </div>
                   </div>
@@ -190,30 +173,14 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               >
                 {/* Drag handle */}
                 <div 
-                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform duration-200 hover:scale-110"
-                  style={{
-                    animation: isAnimating ? 'dragHandlePulse 3s ease-in-out' : 'none'
-                  }}
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  bg-transparent rounded-full  flex items-center justify-center transition-transform duration-200 hover:scale-110"
                 >
                   <div className="flex items-center space-x-0">
-                    <FiChevronLeft className="h-5 w-5 text-gray-800" />
-                    <FiChevronRight className="h-5 w-5 text-gray-800" />
+                    <FiChevronLeft className="h-7 w-7 text-white" />
+                    <FiChevronRight className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </div>
-              
-              {/* Add keyframes for the animation */}
-              <style jsx global>{`
-                @keyframes dragHandlePulse {
-                  0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-                  25% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 0 10px rgba(99, 102, 241, 0.2); }
-                  50% { transform: translate(-50%, -50%) scale(0.95); }
-                  75% { transform: translate(-50%, -50%) translateX(-15px) scale(1.1); }
-                  85% { transform: translate(-50%, -50%) translateX(15px) scale(1.1); }
-                  95% { transform: translate(-50%, -50%) translateX(-5px) scale(1); }
-                  100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-                }
-              `}</style>
               
               {/* Progress indicator at bottom */}
               <div className="absolute bottom-4 left-4 right-4 h-1 bg-gray-200 rounded-full overflow-hidden z-30">
