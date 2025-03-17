@@ -17,7 +17,7 @@ export const products: Product[] = [
     name: 'Darkmode',
     description: 'A bold, dark roast with chocolate undertones. Ideal for late-night debugging.',
     price: 1599, // $15.99
-    image_url: '/coffee-1.jpg',
+    image_url: '/images/coffee-1.jpg',
     stock: 100,
     category: 'dark-roast',
   },
@@ -27,7 +27,7 @@ export const products: Product[] = [
     name: 'Function',
     description: 'A medium roast with nutty flavors that returns consistent energy every time.',
     price: 1549, // $15.49
-    image_url: '/coffee-1.jpg',
+    image_url: '/images/coffee-1.jpg',
     stock: 100,
     category: 'medium-roast',
   },

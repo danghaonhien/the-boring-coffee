@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
@@ -12,227 +12,321 @@ type ProductSliderProps = {
 };
 
 export default function ProductSlider({ products }: ProductSliderProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [nextIndex, setNextIndex] = useState(1);
+  // Use only the first two products for comparison
+  const limitedProducts = products.slice(0, 2);
+  
   const [isDragging, setIsDragging] = useState(false);
-  const [dragPosition, setDragPosition] = useState(0); // 0-100% position
-  const [lastDragX, setLastDragX] = useState(0);
-  const sliderRef = useRef<HTMLDivElement>(null);
+  const [dragPosition, setDragPosition] = useState(50); // Start at 50% position
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
-  // Set next index when current index changes
-  useEffect(() => {
-    setNextIndex((currentIndex + 1) % products.length);
-  }, [currentIndex, products.length]);
-
-  // Handle switching to next product when dragged all the way
-  useEffect(() => {
-    if (dragPosition >= 100) {
-      setCurrentIndex(nextIndex);
-      setDragPosition(0);
-    }
-  }, [dragPosition, nextIndex]);
-
   const handleButtonDragStart = (e: React.TouchEvent | React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault(); // Prevent click events from firing
     setIsDragging(true);
     
-    // Store the starting X position
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    setLastDragX(clientX);
-  };
-
-  const handleButtonDragMove = (e: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging || !imageContainerRef.current) return;
-    e.stopPropagation();
-    
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const containerWidth = imageContainerRef.current.offsetWidth;
-    
-    // Calculate the drag distance as a percentage of container width
-    const dragDistance = clientX - lastDragX;
-    const dragPercent = (dragDistance / containerWidth) * 100 * 50; // 5x sensitivity
-    
-    // Update the drag position with enhanced sensitivity
-    const newPosition = Math.max(0, Math.min(100, dragPosition + dragPercent));
-    setDragPosition(newPosition);
-    setLastDragX(clientX);
-    
-    // If position crosses 50%, update next index
-    if (newPosition > 50 && dragPosition <= 50) {
-      setNextIndex((currentIndex + 1) % products.length);
-    } else if (newPosition <= 50 && dragPosition > 50) {
-      setNextIndex(currentIndex === 0 ? products.length - 1 : currentIndex - 1);
+    // Add event listeners to window for better drag tracking
+    if ('touches' in e) {
+      window.addEventListener('touchmove', handleWindowDragMove);
+      window.addEventListener('touchend', handleWindowDragEnd);
+    } else {
+      window.addEventListener('mousemove', handleWindowDragMove);
+      window.addEventListener('mouseup', handleWindowDragEnd);
     }
   };
 
-  const handleButtonDragEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
+  const handleWindowDragMove = (e: MouseEvent | TouchEvent) => {
+    if (!isDragging || !imageContainerRef.current) return;
+    e.preventDefault();
+    
+    const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
+    const containerWidth = imageContainerRef.current.offsetWidth;
+    const containerRect = imageContainerRef.current.getBoundingClientRect();
+    
+    // Calculate position relative to container
+    const relativeX = clientX - containerRect.left;
+    const newPosition = Math.max(0, Math.min(100, (relativeX / containerWidth) * 100));
+    
+    setDragPosition(newPosition);
   };
 
-  const handleSwitchProduct = () => {
-    setCurrentIndex(nextIndex);
-    setDragPosition(0);
+  const handleWindowDragEnd = (e: MouseEvent | TouchEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setIsDragging(false);
+    
+    // Remove event listeners
+    window.removeEventListener('mousemove', handleWindowDragMove);
+    window.removeEventListener('mouseup', handleWindowDragEnd);
+    window.removeEventListener('touchmove', handleWindowDragMove);
+    window.removeEventListener('touchend', handleWindowDragEnd);
+    
+    // Don't switch products when drag ends - keep the products fixed
+    // Just keep the visual state based on drag position
   };
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowRight') {
-      setDragPosition(Math.min(100, dragPosition + 20)); // Increased sensitivity
+      setDragPosition(Math.min(100, dragPosition + 10));
     } else if (e.key === 'ArrowLeft') {
-      setDragPosition(Math.max(0, dragPosition - 20)); // Increased sensitivity
+      setDragPosition(Math.max(0, dragPosition - 10));
     }
   };
 
-  // Handle direct click on the image container
-  const handleImageContainerClick = (e: React.MouseEvent) => {
-    if (!imageContainerRef.current) return;
-    
-    const containerRect = imageContainerRef.current.getBoundingClientRect();
-    const clickX = e.clientX - containerRect.left;
-    const containerWidth = containerRect.width;
-    
-    // Calculate position as percentage
-    const clickPosition = (clickX / containerWidth) * 100;
-    setDragPosition(clickPosition);
-  };
-
-  const currentProduct = products[currentIndex];
-  const nextProduct = products[nextIndex];
+  // Get the current products - always use fixed indices
+  const currentProduct = limitedProducts[0]; // Always use first product as left side
+  const nextProduct = limitedProducts[1];    // Always use second product as right side
+  
+  // Determine which product to display based on drag position
+  const displayedProduct = dragPosition > 50 ? nextProduct : currentProduct;
 
   return (
-    <div 
-      className="relative overflow-hidden bg-white rounded-lg shadow-md"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-    >
-      <div 
-        ref={sliderRef}
-        className="relative w-full"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+    <div className="mb-12">
+      <h3 className="text-xl font-bold text-gray-900 mb-4">Compare Our Coffee</h3>
+      
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          {/* Comparison slider - takes 50% width on desktop */}
           <div 
-            ref={imageContainerRef}
-            className="relative aspect-square bg-gray-100 overflow-hidden cursor-pointer"
-            onClick={handleImageContainerClick}
+            className="relative md:w-1/2 aspect-square md:aspect-auto"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
           >
-            {/* Current product image */}
+            {/* Product comparison container */}
             <div 
-              className="absolute inset-0 transition-transform duration-300 ease-out"
-              style={{ 
-                transform: `translateX(-${dragPosition}%)`,
-                opacity: 1 - (dragPosition / 100)
-              }}
+              ref={imageContainerRef}
+              className="relative w-full h-full overflow-hidden"
             >
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <div className="text-2xl font-bold text-gray-500">{currentProduct.name}</div>
-              </div>
-            </div>
-            
-            {/* Next product image (revealed when dragging) */}
-            <div 
-              className="absolute inset-0 transition-transform duration-300 ease-out"
-              style={{ 
-                transform: `translateX(${100 - dragPosition}%)`,
-                opacity: dragPosition / 100
-              }}
-            >
-              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                <div className="text-2xl font-bold text-white">{nextProduct.name}</div>
-              </div>
-            </div>
-            
-            {/* Draggable divider with arrows */}
-            <div 
-              ref={buttonRef}
-              className="absolute top-0 bottom-0 w-16 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 transition-all duration-200"
-              style={{ 
-                left: `${dragPosition}%`,
-                transform: `translateX(-50%)`,
-              }}
-              onTouchStart={handleButtonDragStart}
-              onTouchMove={handleButtonDragMove}
-              onTouchEnd={handleButtonDragEnd}
-              onMouseDown={handleButtonDragStart}
-              onMouseMove={handleButtonDragMove}
-              onMouseUp={handleButtonDragEnd}
-              onMouseLeave={handleButtonDragEnd}
-            >
-              {/* Vertical divider line */}
-              <div className="absolute inset-y-0 w-px bg-white bg-opacity-70"></div>
-              
-              {/* Drag handle */}
-              <div className="absolute bg-white rounded-full p-3 shadow-md">
-                <div className="flex items-center space-x-1">
-                  <FiChevronLeft className="h-5 w-5 text-gray-800" />
-                  <FiChevronRight className="h-5 w-5 text-gray-800" />
+              {/* Background product (fixed) */}
+              <div 
+                className="absolute inset-0 z-10 transition-colors duration-500"
+                style={{ 
+                  backgroundColor: nextProduct.image_url === 'lightmode' ? '#f8fafc' : 
+                                  nextProduct.image_url === 'darkmode' ? '#1e293b' :
+                                  nextProduct.image_url === 'function' ? '#475569' :
+                                  nextProduct.image_url === 'recursive' ? '#334155' :
+                                  nextProduct.image_url === 'boolean' ? '#64748b' :
+                                  nextProduct.image_url === 'async' ? '#3b82f6' : '#e2e8f0'
+                }}
+              >
+                {/* Coffee cup icon */}
+                <div className="w-full h-full flex flex-col items-center justify-center">
+                  <div className="mb-6 relative">
+                    <div 
+                      className="w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500"
+                      style={{
+                        backgroundColor: nextProduct.image_url === 'lightmode' ? '#e2e8f0' : 
+                                        nextProduct.image_url === 'darkmode' ? '#0f172a' :
+                                        nextProduct.image_url === 'function' ? '#334155' :
+                                        nextProduct.image_url === 'recursive' ? '#1e293b' :
+                                        nextProduct.image_url === 'boolean' ? '#475569' :
+                                        nextProduct.image_url === 'async' ? '#2563eb' : '#cbd5e1',
+                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)'
+                      }}
+                    >
+                      <svg className="w-24 h-24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path 
+                          d="M2 8H18V17C18 19.2091 16.2091 21 14 21H6C3.79086 21 2 19.2091 2 17V8Z" 
+                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.2"
+                        />
+                        <path 
+                          d="M18 8H2V7C2 4.79086 3.79086 3 6 3H14C16.2091 3 18 4.79086 18 7V8Z" 
+                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.4"
+                        />
+                        <path 
+                          d="M18 10H22C22.5523 10 23 10.4477 23 11V13C23 14.6569 21.6569 16 20 16H18V10Z" 
+                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.3"
+                        />
+                        <path 
+                          d="M9.5 8C9.5 7.17157 10.1716 6.5 11 6.5H12C12.8284 6.5 13.5 7.17157 13.5 8V8H9.5V8Z" 
+                          fill={nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.5"
+                        />
+                      </svg>
+                    </div>
+                    {/* Steam */}
+                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                      <div className="w-1 h-6 bg-white bg-opacity-30 rounded-full animate-steam1"></div>
+                      <div className="w-1 h-8 bg-white bg-opacity-30 rounded-full animate-steam2 delay-150"></div>
+                      <div className="w-1 h-5 bg-white bg-opacity-30 rounded-full animate-steam3 delay-300"></div>
+                    </div>
+                  </div>
+                  <div className={`text-2xl font-bold transition-colors duration-500 ${nextProduct.image_url === 'darkmode' || nextProduct.image_url === 'recursive' || nextProduct.image_url === 'function' ? 'text-white' : 'text-gray-800'}`}>
+                    {nextProduct.name}
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Drag guides */}
-            <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-white to-transparent opacity-20 pointer-events-none"></div>
-            <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-white to-transparent opacity-20 pointer-events-none"></div>
-            
-            {/* Complete reveal button - appears when dragged far enough */}
-            {dragPosition > 20 && (
-              <button
-                className="absolute bottom-4 right-4 bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-opacity duration-300"
-                style={{ opacity: (dragPosition - 20) / 30 }}
-                onClick={handleSwitchProduct}
+              
+              {/* Foreground product (revealed with clip-path) */}
+              <div 
+                className="absolute inset-0 z-20 transition-all duration-300 ease-out"
+                style={{ 
+                  backgroundColor: currentProduct.image_url === 'lightmode' ? '#f8fafc' : 
+                                  currentProduct.image_url === 'darkmode' ? '#1e293b' :
+                                  currentProduct.image_url === 'function' ? '#475569' :
+                                  currentProduct.image_url === 'recursive' ? '#334155' :
+                                  currentProduct.image_url === 'boolean' ? '#64748b' :
+                                  currentProduct.image_url === 'async' ? '#3b82f6' : '#e2e8f0',
+                  clipPath: `polygon(0 0, ${dragPosition}% 0, ${dragPosition}% 100%, 0 100%)`,
+                  transition: isDragging ? 'none' : 'clip-path 0.3s ease-out, background-color 0.5s'
+                }}
               >
-                Switch to {nextProduct.name}
-              </button>
-            )}
-            
-            {/* Drag instruction - fades out as you drag */}
-            <div 
-              className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white text-xs px-3 py-1 rounded-full transition-opacity duration-300"
-              style={{ opacity: 1 - (dragPosition / 30) }}
-            >
-              Drag to reveal
+                {/* Coffee cup icon */}
+                <div className="w-full h-full flex flex-col items-center justify-center">
+                  <div className="mb-6 relative">
+                    <div 
+                      className="w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500"
+                      style={{
+                        backgroundColor: currentProduct.image_url === 'lightmode' ? '#e2e8f0' : 
+                                        currentProduct.image_url === 'darkmode' ? '#0f172a' :
+                                        currentProduct.image_url === 'function' ? '#334155' :
+                                        currentProduct.image_url === 'recursive' ? '#1e293b' :
+                                        currentProduct.image_url === 'boolean' ? '#475569' :
+                                        currentProduct.image_url === 'async' ? '#2563eb' : '#cbd5e1',
+                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)'
+                      }}
+                    >
+                      <svg className="w-24 h-24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path 
+                          d="M2 8H18V17C18 19.2091 16.2091 21 14 21H6C3.79086 21 2 19.2091 2 17V8Z" 
+                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.2"
+                        />
+                        <path 
+                          d="M18 8H2V7C2 4.79086 3.79086 3 6 3H14C16.2091 3 18 4.79086 18 7V8Z" 
+                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.4"
+                        />
+                        <path 
+                          d="M18 10H22C22.5523 10 23 10.4477 23 11V13C23 14.6569 21.6569 16 20 16H18V10Z" 
+                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.3"
+                        />
+                        <path 
+                          d="M9.5 8C9.5 7.17157 10.1716 6.5 11 6.5H12C12.8284 6.5 13.5 7.17157 13.5 8V8H9.5V8Z" 
+                          fill={currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'white' : '#1e293b'} 
+                          fillOpacity="0.5"
+                        />
+                      </svg>
+                    </div>
+                    {/* Steam */}
+                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                      <div className="w-1 h-6 bg-white bg-opacity-30 rounded-full animate-steam1"></div>
+                      <div className="w-1 h-8 bg-white bg-opacity-30 rounded-full animate-steam2 delay-150"></div>
+                      <div className="w-1 h-5 bg-white bg-opacity-30 rounded-full animate-steam3 delay-300"></div>
+                    </div>
+                  </div>
+                  <div className={`text-2xl font-bold transition-colors duration-500 ${currentProduct.image_url === 'darkmode' || currentProduct.image_url === 'recursive' || currentProduct.image_url === 'function' ? 'text-white' : 'text-gray-800'}`}>
+                    {currentProduct.name}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Draggable divider */}
+              <div 
+                ref={buttonRef}
+                className="absolute top-0 bottom-0 w-1 bg-white z-30 cursor-ew-resize"
+                style={{ 
+                  left: `${dragPosition}%`,
+                  transform: 'translateX(-50%)',
+                  transition: isDragging ? 'none' : 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onTouchStart={handleButtonDragStart}
+                onMouseDown={handleButtonDragStart}
+              >
+                {/* Drag handle */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform duration-200 hover:scale-110">
+                  <div className="flex items-center space-x-0">
+                    <FiChevronLeft className="h-5 w-5 text-gray-800" />
+                    <FiChevronRight className="h-5 w-5 text-gray-800" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Progress indicator at bottom */}
+              <div className="absolute bottom-4 left-4 right-4 h-1 bg-gray-200 rounded-full overflow-hidden z-30">
+                <div 
+                  className="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${dragPosition}%`,
+                    transition: isDragging ? 'none' : 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                />
+              </div>
+              
+              {/* Drag instruction */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-3 py-1 rounded-full">
+                Drag to compare
+              </div>
             </div>
           </div>
           
-          <div className="p-8 flex flex-col justify-between">
+          {/* Product info - takes 50% width on desktop */}
+          <div className="p-6 md:w-1/2 flex flex-col justify-between">
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-bold text-gray-900">{currentProduct.name}</h3>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 transition-all duration-300">
+                    {displayedProduct.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {displayedProduct === nextProduct ? `Drag left to see ${currentProduct.name}` : `Drag right to see ${nextProduct.name}`}
+                  </p>
+                </div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                   New
                 </span>
               </div>
-              <p className="text-lg font-medium text-gray-900 mb-4">{formatPrice(currentProduct.price)}</p>
-              <p className="text-gray-600 mb-6">{currentProduct.description}</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex justify-center items-center">
-                <div className="flex space-x-1">
-                  {products.map((_, index) => (
-                    <span 
-                      key={index}
-                      className={`block h-1.5 rounded-full ${
-                        index === currentIndex ? 'w-6 bg-indigo-600' : 'w-2 bg-gray-300'
-                      }`}
-                    />
-                  ))}
+              
+              <div className="mt-6 transition-all duration-300">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div 
+                      className="w-10 h-10 rounded-full mr-3 transition-all duration-300"
+                      style={{
+                        backgroundColor: displayedProduct.image_url === 'lightmode' ? '#e2e8f0' : 
+                                             displayedProduct.image_url === 'darkmode' ? '#0f172a' :
+                                             displayedProduct.image_url === 'function' ? '#334155' :
+                                             displayedProduct.image_url === 'recursive' ? '#1e293b' :
+                                             displayedProduct.image_url === 'boolean' ? '#475569' :
+                                             displayedProduct.image_url === 'async' ? '#2563eb' : '#cbd5e1'
+                      }}
+                    ></div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">
+                        {displayedProduct.name}
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        {formatPrice(displayedProduct.price)}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href={`/products/${displayedProduct.id}`}
+                    className="text-indigo-600 text-sm font-medium hover:text-indigo-500"
+                  >
+                    View Details
+                  </Link>
                 </div>
               </div>
               
-              <div className="flex space-x-4">
-                <Link
-                  href={`/products/${currentProduct.id}`}
-                  className="flex-1 py-3 px-4 border border-gray-300 rounded-md text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  View Details
-                </Link>
-                <div className="flex-1">
-                  <AddToCartButton product={currentProduct} compact={true} />
-                </div>
+              <div className="mt-8 transition-all duration-300">
+                <h4 className="font-medium text-gray-900 mb-2">Description</h4>
+                <p className="text-gray-600 text-sm">
+                  {displayedProduct.description}
+                </p>
               </div>
+            </div>
+            
+            <div className="mt-8">
+              <AddToCartButton 
+                product={displayedProduct} 
+                compact={false} 
+              />
             </div>
           </div>
         </div>
