@@ -57,7 +57,7 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="absolute inset-0 bg-gray-500 opacity-50 backdrop-blur-md transition-opacity" />
+            <div className="absolute inset-0 bg-black-700 opacity-50 backdrop-blur-sm transition-opacity" />
           </Transition.Child>
 
           <div className="fixed inset-y-0 right-0 max-w-full flex">
@@ -73,13 +73,13 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
               <div className="w-screen max-w-md">
                 <div className="h-full flex flex-col bg-white shadow-xl overflow-hidden">
                   {/* Header */}
-                  <div className="px-4 py-5 bg-amber-700 text-white flex items-center justify-between">
+                  <div className="px-4 py-5 bg-[#242423] text-[#E8EDDF] flex items-center justify-between">
                     <Dialog.Title className="text-lg font-medium">
                       Your Cart ({totalItems})
                     </Dialog.Title>
                     <button
                       type="button"
-                      className="rounded-md text-white hover:text-gray-200"
+                      className="rounded-md text-[#E8EDDF] hover:text-[#F5CB5C]"
                       onClick={onClose}
                     >
                       <span className="sr-only">Close panel</span>
@@ -87,10 +87,29 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                     </button>
                   </div>
                   
-                  {/* Free shipping notification */}
+                               {/* Free shipping banner */}
                   {items.length > 0 && (
-                    <div className="bg-blue-50 px-4 py-3 text-center">
-                      <p className="text-sm text-blue-800">Woohoo! You have unlocked free shipping!</p>
+                    <div className="bg-[#E8EDDF] px-4 py-3">
+                      {subtotal >= 5000 ? (
+                        <div className="text-center animate-fadeIn">
+                          <p className="text-sm text-[#333533] animate-bounce">
+                            🎉 Woohoo! You have unlocked free shipping!
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex justify-between text-xs text-[#333533] mb-2">
+                            <span>Add {formatPrice(5000 - subtotal)} more to get free shipping!</span>
+                            <span>{formatPrice(subtotal)} of {formatPrice(5000)}</span>
+                          </div>
+                          <div className="h-2 w-full bg-[#CFDBD5] rounded-full overflow-hidden">
+                            <div 
+                              className="h-2 bg-[#F5CB5C] rounded-full transition-all duration-700 ease-out"
+                              style={{ width: `${Math.min(100, (subtotal / 5000) * 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -119,10 +138,7 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                                     <h3 className="text-base font-medium text-gray-900">
                                       {item.product?.name}
                                     </h3>
-                                    <p className="mt-1 text-sm text-gray-500">
-                                      {item.product?.description?.substring(0, 60)}
-                                      {item.product?.description && item.product.description.length > 60 ? '...' : ''}
-                                    </p>
+                            
                                   </div>
                                   <button
                                     type="button"
@@ -135,7 +151,7 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                                 </div>
                               </div>
                               <div className="mt-auto flex items-end justify-between text-sm">
-                                <div className="flex items-center border rounded-md">
+                                <div className="flex items-center ">
                                   <button
                                     onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                                     className="p-2 text-gray-600 hover:bg-gray-100"
@@ -226,7 +242,7 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                       <p className="text-xs text-gray-500 mb-4">Shipping and taxes calculated at checkout.</p>
                       <Link
                         href="/checkout"
-                        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-amber-700 hover:bg-amber-800"
+                        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90"
                         onClick={onClose}
                       >
                         CHECKOUT
