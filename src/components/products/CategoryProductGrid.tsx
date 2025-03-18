@@ -53,7 +53,7 @@ export default function CategoryProductGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-12">
         {/* Featured product taking 2 columns */}
         <div className="md:col-span-2 lg:col-span-2">
-          <div className="bg-[#E8EDDF] rounded-lg shadow-md overflow-hidden h-full flex flex-col">
+          <div className="bg-[#E8EDDF] border border-[#d8e2dc] overflow-hidden h-full flex flex-col">
             <div className="relative h-80 w-full bg-[#CFDBD5]">
               {featuredProduct.image_url && (
                 <Image

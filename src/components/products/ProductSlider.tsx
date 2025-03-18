@@ -96,7 +96,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
     <div className="mb-12">
       {/* <h3 className="text-xl font-bold text-[#242423] mb-4">Compare Our Coffee</h3> */}
       
-      <div className="bg-[#E8EDDF] rounded-lg shadow-md overflow-hidden">
+      <div className="bg-[#E8EDDF] border border-[#d8e2dc] overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
           {/* Comparison slider - takes 50% width on desktop, fixed height */}
           <div 

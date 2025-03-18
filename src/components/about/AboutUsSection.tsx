@@ -9,6 +9,7 @@ export default function AboutUsSection() {
       title: 'Our Team',
       subtitle: 'Personal, private, powerful.',
       image: '/images/about/team.jpg',
+      previewText: 'Meet our passionate team of coffee enthusiasts dedicated to delivering exceptional coffee experiences...',
       content: (
         <>
           <p>
@@ -29,6 +30,7 @@ export default function AboutUsSection() {
       title: 'Productivity',
       subtitle: 'Your workplace can be any place.',
       image: '/images/about/productivity.jpg',
+      previewText: 'Coffee and productivity go hand in hand, which is why we\'ve crafted our beans to help you stay focused...',
       content: (
         <>
           <p>
@@ -49,6 +51,7 @@ export default function AboutUsSection() {
       title: 'Creativity',
       subtitle: 'Take your inner artist out and about.',
       image: '/images/about/creativity.jpg',
+      previewText: 'Our unique flavor profiles are designed to stimulate the senses and awaken the creative mind...',
       content: (
         <>
           <p>
@@ -69,6 +72,7 @@ export default function AboutUsSection() {
       title: 'Learning',
       subtitle: 'Your classroom can be anywhere.',
       image: '/images/about/learning.jpg',
+      previewText: 'Whether you\'re studying for an exam or mastering a new skill, our coffee provides the perfect balance...',
       content: (
         <>
           <p>
@@ -99,6 +103,7 @@ export default function AboutUsSection() {
                 title={card.title}
                 subtitle={card.subtitle}
                 image={card.image}
+                previewText={card.previewText}
                 content={card.content}
                 backgroundColor={card.backgroundColor}
                 textColor={card.textColor}

@@ -32,7 +32,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative bg-[#E8EDDF] rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
+    <div className="group relative bg-[#E8EDDF] border border-[#d8e2dc] overflow-hidden transition-all duration-200 hover:shadow-md">
       <Link href={`/products/${product.id}`} className="block">
         <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-[#CFDBD5] relative">
           <Image
