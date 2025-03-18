@@ -31,10 +31,10 @@ export default function PromoBanner({ messages = [
   }, [messages]);
 
   return (
-    <div className="bg-amber-900 text-white py-2">
+    <div className="bg-[#242423] text-[#E8EDDF] py-2">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center min-h-[24px]">
-          <FiCoffee className="h-4 w-4 text-amber-200 mr-2" aria-hidden="true" />
+          <FiCoffee className="h-4 w-4 text-[#F5CB5C] mr-2" aria-hidden="true" />
           <div className="relative overflow-hidden h-6 inline-block">
             <p 
               className={`text-sm font-medium transition-opacity duration-300 ${

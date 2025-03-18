@@ -32,37 +32,37 @@ export default function Header() {
 
   return (
     <header 
-      className={`bg-white ${
+      className={`bg-[#E8EDDF] ${
         isScrolled 
           ? 'shadow-md border-b-0 py-2' 
-          : 'shadow-sm border-b border-amber-200 py-4'
+          : 'shadow-sm border-b border-[#CFDBD5] py-4'
       } sticky top-0 z-50 transition-all duration-300`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center space-x-2">
-              <FiCoffee className="h-8 w-8 text-amber-700" />
-              <span className="font-display text-3xl font-bold text-gray-900 tracking-tight">
-                The <span className="text-amber-700">Boring</span> Coffee
+              <FiCoffee className="h-8 w-8 text-[#F5CB5C]" />
+              <span className="font-display text-3xl font-bold text-[#242423] tracking-tight">
+                The <span className="text-[#F5CB5C]">Boring</span> Coffee
               </span>
             </Link>
             <nav className="hidden md:ml-8 md:flex md:space-x-8">
               <Link 
                 href="/products" 
-                className="text-gray-700 hover:text-amber-700 px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
+                className="text-[#333533] hover:text-[#F5CB5C] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
               >
                 Shop
               </Link>
               <Link 
                 href="/about" 
-                className="text-gray-700 hover:text-amber-700 px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
+                className="text-[#333533] hover:text-[#F5CB5C] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
               >
                 About
               </Link>
               <Link 
                 href="/contact" 
-                className="text-gray-700 hover:text-amber-700 px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
+                className="text-[#333533] hover:text-[#F5CB5C] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
               >
                 Contact
               </Link>
@@ -72,13 +72,13 @@ export default function Header() {
             <CartButton />
             <Link 
               href="/account" 
-              className="p-2 text-gray-700 hover:text-amber-700 ml-4 transition-colors duration-200"
+              className="p-2 text-[#333533] hover:text-[#F5CB5C] ml-4 transition-colors duration-200"
             >
               <FiUser className="h-7 w-7" />
             </Link>
             <button
               type="button"
-              className="md:hidden p-2 text-gray-700 hover:text-amber-700 ml-4 transition-colors duration-200"
+              className="md:hidden p-2 text-[#333533] hover:text-[#F5CB5C] ml-4 transition-colors duration-200"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -91,22 +91,22 @@ export default function Header() {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden">
-          <div className="pt-2 pb-3 space-y-1 border-t border-amber-100">
+          <div className="pt-2 pb-3 space-y-1 border-t border-[#CFDBD5]">
             <Link 
               href="/products" 
-              className="block pl-4 pr-4 py-3 text-base font-medium text-gray-700 hover:text-amber-700 hover:bg-amber-100"
+              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#F5CB5C] hover:bg-[#CFDBD5]"
             >
               Shop
             </Link>
             <Link 
               href="/about" 
-              className="block pl-4 pr-4 py-3 text-base font-medium text-gray-700 hover:text-amber-700 hover:bg-amber-100"
+              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#F5CB5C] hover:bg-[#CFDBD5]"
             >
               About
             </Link>
             <Link 
               href="/contact" 
-              className="block pl-4 pr-4 py-3 text-base font-medium text-gray-700 hover:text-amber-700 hover:bg-amber-100"
+              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#F5CB5C] hover:bg-[#CFDBD5]"
             >
               Contact
             </Link>
