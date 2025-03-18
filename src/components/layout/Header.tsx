@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { FiShoppingCart, FiUser, FiMenu, FiCoffee } from 'react-icons/fi';
+import { FiUser, FiMenu, FiCoffee } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
-import { useCart } from '../../context/CartContext';
+import CartButton from '../cart/CartButton';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { totalItems } = useCart();
 
   // Handle scroll to determine if we should add shadow
   useEffect(() => {
@@ -70,17 +69,7 @@ export default function Header() {
             </nav>
           </div>
           <div className="flex items-center">
-            <Link 
-              href="/cart" 
-              className="p-2 text-gray-700 hover:text-amber-700 relative transition-colors duration-200"
-            >
-              <FiShoppingCart className="h-7 w-7" />
-              {totalItems > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-amber-700 rounded-full">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
+            <CartButton />
             <Link 
               href="/account" 
               className="p-2 text-gray-700 hover:text-amber-700 ml-4 transition-colors duration-200"
