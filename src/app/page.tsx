@@ -4,6 +4,7 @@ import ProductGrid from '../components/products/ProductGrid';
 import ProductSlider from '../components/products/ProductSlider';
 import CategoryProductGrid from '../components/products/CategoryProductGrid';
 import AboutUsSection from '../components/about/AboutUsSection';
+import ReviewsSection from '../components/reviews/ReviewsSection';
 
 export default function Home() {
   // Get featured products (first 3)
@@ -84,32 +85,8 @@ export default function Home() {
       {/* About Us section */}
       <AboutUsSection />
 
-      {/* Features section */}
-      <div className="bg-[#CFDBD5]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h2 className="text-3xl font-display font-bold text-[#242423] text-center mb-12">Why Choose The Boring Coffee?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#E8EDDF] p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-serif font-semibold text-[#242423] mb-3">Tech-Inspired</h3>
-              <p className="text-[#333533]">
-                Coffee names and flavors inspired by the tech world, designed for developers and tech enthusiasts.
-              </p>
-            </div>
-            <div className="bg-[#E8EDDF] p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-serif font-semibold text-[#242423] mb-3">Consistent Quality</h3>
-              <p className="text-[#333533]">
-                Like a well-written function, our coffee delivers the same great experience every single time.
-              </p>
-            </div>
-            <div className="bg-[#E8EDDF] p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-serif font-semibold text-[#242423] mb-3">Ethically Sourced</h3>
-              <p className="text-[#333533]">
-                We believe in open-source principles and transparent supply chains for all our coffee beans.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Customer Reviews section */}
+      <ReviewsSection />
     </div>
   );
 } 
