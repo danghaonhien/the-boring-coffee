@@ -92,9 +92,9 @@ export default function ProductSlider({ products }: ProductSliderProps) {
 
   return (
     <div className="mb-12">
-      <h3 className="text-xl font-bold text-gray-900 mb-4">Compare Our Coffee</h3>
+      <h3 className="text-xl font-bold text-[#242423] mb-4">Compare Our Coffee</h3>
       
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-[#E8EDDF] rounded-lg shadow-md overflow-hidden">
         <div className="flex flex-col md:flex-row">
           {/* Comparison slider - takes 50% width on desktop */}
           <div 
@@ -123,8 +123,8 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   )}
                   
                   {/* Product name overlay - simplified */}
-                  <div className="absolute bottom-0  inset-x-0 bg-gradient-to-t from-black to-transparent py-4 px-4">
-                    <div className="text-2xl font-bold text-white text-right">
+                  <div className="absolute bottom-0  inset-x-0 bg-gradient-to-t from-[#242423] to-transparent py-4 px-4">
+                    <div className="text-2xl font-bold text-[#E8EDDF] text-right">
                       {rightProduct.name}
                     </div>
                   </div>
@@ -151,8 +151,8 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   )}
                   
                   {/* Product name overlay - simplified */}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black to-transparent py-4 px-4">
-                    <div className="text-2xl font-bold text-white">
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#242423] to-transparent py-4 px-4">
+                    <div className="text-2xl font-bold text-[#E8EDDF]">
                       {leftProduct.name}
                     </div>
                   </div>
@@ -162,7 +162,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               {/* Draggable divider */}
               <div 
                 ref={buttonRef}
-                className="absolute top-0 bottom-0 w-1 bg-white z-30 cursor-ew-resize"
+                className="absolute top-0 bottom-0 w-1 bg-[#E8EDDF] z-30 cursor-ew-resize"
                 style={{ 
                   left: `${dragPosition}%`,
                   transform: 'translateX(-50%)',
@@ -173,19 +173,19 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               >
                 {/* Drag handle */}
                 <div 
-                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  bg-transparent rounded-full  flex items-center justify-center transition-transform duration-200 hover:scale-110"
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-transparent rounded-full flex items-center justify-center transition-transform duration-200 hover:scale-110"
                 >
                   <div className="flex items-center space-x-0">
-                    <FiChevronLeft className="h-7 w-7 text-white" />
-                    <FiChevronRight className="h-7 w-7 text-white" />
+                    <FiChevronLeft className="h-7 w-7 text-[#E8EDDF]" />
+                    <FiChevronRight className="h-7 w-7 text-[#E8EDDF]" />
                   </div>
                 </div>
               </div>
               
               {/* Progress indicator at bottom */}
-              <div className="absolute bottom-4 left-4 right-4 h-1 bg-gray-200 rounded-full overflow-hidden z-30">
+              <div className="absolute bottom-4 left-4 right-4 h-1 bg-[#CFDBD5] rounded-full overflow-hidden z-30">
                 <div 
-                  className="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                  className="h-full bg-[#F5CB5C] rounded-full transition-all duration-300"
                   style={{ 
                     width: `${dragPosition}%`,
                     transition: isDragging ? 'none' : 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -194,7 +194,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               </div>
               
               {/* Drag instruction */}
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-3 py-1 rounded-full">
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-[#242423] bg-opacity-50 text-[#E8EDDF] text-xs px-3 py-1 rounded-full">
                 Drag to compare
               </div>
             </div>
@@ -205,16 +205,16 @@ export default function ProductSlider({ products }: ProductSliderProps) {
             <div>
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 transition-all duration-300">
+                  <h3 className="text-2xl font-bold text-[#242423] transition-all duration-300">
                     {displayedProduct.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-[#333533] mt-1">
                     {displayedProduct === rightProduct ? 
                       `Drag left to see ${leftProduct.name}` : 
                       `Drag right to see ${rightProduct.name}`}
                   </p>
                 </div>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#F5CB5C] text-[#242423]">
                   New
                 </span>
               </div>
@@ -223,20 +223,20 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div 
-                      className="w-10 h-10 rounded-full mr-3 transition-all duration-300"
+                      className="w-10 h-10 rounded-full mr-3 bg-[#CFDBD5] transition-all duration-300"
                     ></div>
                     <div>
-                      <h4 className="font-medium text-gray-900">
+                      <h4 className="font-medium text-[#242423]">
                         {displayedProduct.name}
                       </h4>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-[#333533]">
                         {formatPrice(displayedProduct.price)}
                       </p>
                     </div>
                   </div>
                   <Link
                     href={`/products/${displayedProduct.id}`}
-                    className="text-indigo-600 text-sm font-medium hover:text-indigo-500"
+                    className="text-[#F5CB5C] text-sm font-medium hover:text-[#242423]"
                   >
                     View Details
                   </Link>
@@ -244,8 +244,8 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               </div>
               
               <div className="mt-8 transition-all duration-300">
-                <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="font-medium text-[#242423] mb-2">Description</h4>
+                <p className="text-[#333533] text-sm">
                   {displayedProduct.description}
                 </p>
               </div>

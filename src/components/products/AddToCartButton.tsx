@@ -72,7 +72,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
     return (
       <button
         type="button"
-        className={`w-full ${added ? 'bg-green-600' : 'bg-amber-700'} border border-transparent rounded-md py-3 px-4 flex items-center justify-center text-sm font-medium text-white hover:${added ? 'bg-green-700' : 'bg-amber-800'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200`}
+        className={`w-full ${added ? 'bg-[#333533]' : 'bg-[#F5CB5C]'} border border-transparent rounded-md py-3 px-4 flex items-center justify-center text-sm font-medium ${added ? 'text-[#E8EDDF]' : 'text-[#242423]'} hover:${added ? 'bg-[#242423]' : 'bg-[#CFDBD5]'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200`}
         onClick={handleCompactAddToCart}
         disabled={added}
       >
@@ -96,27 +96,27 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
       <div className="flex items-center mb-4">
         <button
           type="button"
-          className="p-2 border border-gray-300 rounded-md hover:bg-amber-50 transition-colors duration-200"
+          className="p-2 border border-[#CFDBD5] rounded-md hover:bg-[#E8EDDF] transition-colors duration-200"
           onClick={decreaseQuantity}
           aria-label="Decrease quantity"
           disabled={added}
         >
-          <FiMinus className="h-4 w-4 text-amber-700" />
+          <FiMinus className="h-4 w-4 text-[#333533]" />
         </button>
-        <span className="mx-4 text-gray-900 font-medium">{quantity}</span>
+        <span className="mx-4 text-[#242423] font-medium">{quantity}</span>
         <button
           type="button"
-          className="p-2 border border-gray-300 rounded-md hover:bg-amber-50 transition-colors duration-200"
+          className="p-2 border border-[#CFDBD5] rounded-md hover:bg-[#E8EDDF] transition-colors duration-200"
           onClick={increaseQuantity}
           aria-label="Increase quantity"
           disabled={added}
         >
-          <FiPlus className="h-4 w-4 text-amber-700" />
+          <FiPlus className="h-4 w-4 text-[#333533]" />
         </button>
       </div>
       <button
         type="button"
-        className={`w-full ${added ? 'bg-green-600' : 'bg-amber-700'} border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:${added ? 'bg-green-700' : 'bg-amber-800'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200`}
+        className={`w-full ${added ? 'bg-[#333533]' : 'bg-[#F5CB5C]'} border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium ${added ? 'text-[#E8EDDF]' : 'text-[#242423]'} hover:${added ? 'bg-[#242423]' : 'bg-[#CFDBD5]'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200`}
         onClick={handleAddToCart}
         disabled={added}
       >

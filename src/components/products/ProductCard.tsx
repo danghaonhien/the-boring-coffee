@@ -30,9 +30,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
+    <div className="group relative bg-[#E8EDDF] rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
       <Link href={`/products/${product.id}`} className="block">
-        <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200 relative">
+        <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-[#CFDBD5] relative">
           <Image
             src={product.image_url}
             alt={product.name}
@@ -42,18 +42,18 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </div>
         <div className="p-5">
-          <h3 className="text-lg font-medium text-gray-900">{product.name}</h3>
-          <p className="mt-2 text-sm text-gray-500 line-clamp-2">{product.description}</p>
+          <h3 className="text-lg font-medium text-[#242423]">{product.name}</h3>
+          <p className="mt-2 text-sm text-[#333533] line-clamp-2">{product.description}</p>
           
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-900">{formatPrice(product.price)}</p>
+            <p className="text-lg font-medium text-[#242423]">{formatPrice(product.price)}</p>
             
             {/* Add to cart button - only visible on hover on desktop, always visible on mobile */}
             <button
               onClick={handleAddToCart}
               className={`${
-                isAdded ? 'bg-green-600' : 'bg-amber-700'
-              } text-white px-3 py-2 text-sm shadow-sm transition-all duration-200 rounded-sm flex items-center cursor-pointer sm:opacity-0 sm:group-hover:opacity-100`}
+                isAdded ? 'bg-[#CFDBD5] text-[#242423]' : 'bg-[#F5CB5C] text-[#242423]'
+              } px-3 py-2 text-sm shadow-sm transition-all duration-200 rounded-sm flex items-center cursor-pointer sm:opacity-0 sm:group-hover:opacity-100`}
             >
               {isAdded ? (
                 <>
