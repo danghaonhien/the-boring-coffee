@@ -8,6 +8,7 @@ import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
 import StarRating from './StarRating';
+import RoastMeter from './RoastMeter';
 
 type ProductCardProps = {
   product: Product;
@@ -52,7 +53,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           
           <p className="text-sm text-[#333533] line-clamp-2">{product.description}</p>
           
-          <div className="mt-4 flex flex-col space-y-3">
+          {/* Show RoastMeter only for coffee products */}
+          {product.category === 'coffee' && product.roastLevel !== undefined && (
+            <div className="mt-4">
+              <RoastMeter roastLevel={product.roastLevel} showLabels={true} />
+            </div>
+          )}
+          
+          <div className="mt-8 flex flex-col space-y-3">
             <p className="text-lg font-medium text-[#242423]">{formatPrice(product.price)}</p>
             
             {/* Add to cart button - moved below price */}

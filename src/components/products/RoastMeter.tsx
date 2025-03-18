@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface RoastMeterProps {
@@ -11,8 +10,7 @@ export default function RoastMeter({ roastLevel, showLabels = true }: RoastMeter
   const normalizedLevel = Math.max(0, Math.min(100, roastLevel));
   
   return (
-    <div className="mt-8">
-      
+    <div className={showLabels ? "mt-4" : "mt-1"}>
       <div className="relative">
         {showLabels && (
           <div className="flex justify-between mb-1">
@@ -21,9 +19,9 @@ export default function RoastMeter({ roastLevel, showLabels = true }: RoastMeter
           </div>
         )}
         
-        <div className="h-1 w-full bg-gradient-to-r from-[#E8EDDF] to-[#242423] rounded-full">
+        <div className={`${showLabels ? "h-1" : "h-[3px]"} w-full bg-gradient-to-r from-[#E8EDDF] to-[#242423] rounded-full`}>
           <div 
-            className="absolute h-3 w-3 bg-[#F5CB5C] rounded-full -mt-1 transform -translate-x-1/2 border border-[#242423]" 
+            className={`absolute ${showLabels ? "h-3 w-3 -mt-1" : "h-2 w-2 -mt-[3px]"} bg-[#F5CB5C] rounded-full transform -translate-x-1/2 border border-[#242423]`}
             style={{ 
               left: `${normalizedLevel}%`,
               transition: 'left 0.3s ease-out'
