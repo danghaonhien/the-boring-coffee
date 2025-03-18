@@ -10,6 +10,7 @@ export const products: Product[] = [
     image_url: '/images/lightmode.jpg',
     stock: 100,
     category: 'coffee',
+    rating: 4.8,
   },
   {
     id: '2',
@@ -20,6 +21,7 @@ export const products: Product[] = [
     image_url: '/images/darkmode.jpg',
     stock: 100,
     category: 'coffee',
+    rating: 4.9,
   },
   {
     id: '3',
@@ -30,6 +32,7 @@ export const products: Product[] = [
     image_url: '/images/darkmode.jpg',
     stock: 100,
     category: 'coffee',
+    rating: 4.5,
   },
   {
     id: '4',
@@ -40,6 +43,7 @@ export const products: Product[] = [
     image_url: '/images/darkmode.jpg',
     stock: 100,
     category: 'coffee',
+    rating: 4.7,
   },
   {
     id: '5',
@@ -50,6 +54,7 @@ export const products: Product[] = [
     image_url: '/images/darkmode.jpg',
     stock: 100,
     category: 'coffee',
+    rating: 3.9,
   },
   {
     id: '6',
@@ -60,6 +65,7 @@ export const products: Product[] = [
     image_url: '/images/darkmode.jpg',
     stock: 100,
     category: 'coffee',
+    rating: 4.3,
   },
   {
     id: '7',
@@ -70,6 +76,7 @@ export const products: Product[] = [
     image_url: '/images/debugger-mug.jpg',
     stock: 50,
     category: 'coffee-kit',
+    rating: 4.6,
   },
   {
     id: '8',
@@ -80,6 +87,7 @@ export const products: Product[] = [
     image_url: '/images/pour-over-kit.jpg',
     stock: 25,
     category: 'coffee-kit',
+    rating: 4.8,
   },
   {
     id: '9',
@@ -90,6 +98,7 @@ export const products: Product[] = [
     image_url: '/images/coffee-scale.jpg',
     stock: 30,
     category: 'coffee-kit',
+    rating: 4.4,
   },
   {
     id: '10',
@@ -100,6 +109,7 @@ export const products: Product[] = [
     image_url: '/images/burr-grinder.jpg',
     stock: 15,
     category: 'coffee-kit',
+    rating: 4.9,
   },
   {
     id: '11',
@@ -110,6 +120,7 @@ export const products: Product[] = [
     image_url: '/images/travel-french-press.jpg',
     stock: 20,
     category: 'coffee-kit',
+    rating: 4.2,
   },
   {
     id: '12',
@@ -120,6 +131,7 @@ export const products: Product[] = [
     image_url: '/images/darkmode.jpg',
     stock: 50,
     category: 'coffee',
+    rating: 4.5,
   },
   {
     id: '13',
@@ -130,6 +142,7 @@ export const products: Product[] = [
     image_url: '/images/query.jpg',
     stock: 80,
     category: 'coffee',
+    rating: 4.7,
   },
   {
     id: '14',
@@ -140,5 +153,6 @@ export const products: Product[] = [
     image_url: '/images/cold-brew-maker.jpg',
     stock: 25,
     category: 'coffee-kit',
+    rating: 4.6,
   },
 ]; 

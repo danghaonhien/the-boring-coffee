@@ -7,6 +7,7 @@ export type Product = {
   image_url: string;
   stock: number;
   category: string;
+  rating?: number; // Rating from 0-5
 };
 
 export type User = {

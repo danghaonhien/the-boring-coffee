@@ -39,10 +39,10 @@ export default function Header() {
       } sticky top-0 z-50 transition-all duration-300`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-14">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center space-x-2">
-              <FiCoffee className="h-8 w-8 text-[#F5CB5C]" />
+              <FiCoffee className="h-8 w-8 text-[#333533]" />
               <span className="font-display text-3xl font-bold text-[#242423] tracking-tight">
                 The <span className="text-[#333533]">Boring</span> Coffee
               </span>

@@ -88,7 +88,7 @@ export default function CategoryProductGrid({
       
       {/* Show more button */}
       {hasMoreProducts && !showMore && (
-        <div className="mt-8 text-center ">
+        <div className="mt-12 text-center ">
           <button
             onClick={() => setShowMore(true)}
             className="inline-block bg-[#E8EDDF] cursor-pointer border border-[#CFDBD5] rounded-md py-2 px-8 font-medium text-[#242423] hover:bg-[#CFDBD5]"

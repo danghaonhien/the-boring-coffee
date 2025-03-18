@@ -7,6 +7,7 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
 import AddToCartButton from './AddToCartButton';
+import StarRating from './StarRating';
 
 type ProductSliderProps = {
   products: Product[];
@@ -162,7 +163,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               {/* Draggable divider */}
               <div 
                 ref={buttonRef}
-                className="absolute top-0 bottom-0 w-1 bg-[#E8EDDF] z-30 cursor-ew-resize"
+                className="absolute top-0 bottom-0 w-1 bg-[#E8EDDF] z-30 cursor-grab"
                 style={{ 
                   left: `${dragPosition}%`,
                   transform: 'translateX(-50%)',
@@ -208,6 +209,9 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   <h3 className="text-2xl font-bold text-[#242423] transition-all duration-300">
                     {displayedProduct.name}
                   </h3>
+                  <div className="mt-2">
+                    <StarRating rating={displayedProduct.rating || 0} />
+                  </div>
                   {/* <p className="text-sm text-[#333533] mt-1">
                     {displayedProduct === rightProduct ? 
                       `Drag left to see ${leftProduct.name}` : 
@@ -251,8 +255,9 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               </div>
             </div>
             
-            <div className="mt-8 ">
-              <AddToCartButton 
+            <div className="mt-8  ">
+              <AddToCartButton  
+             
                 product={displayedProduct} 
                 compact={false} 
                 

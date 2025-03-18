@@ -72,11 +72,11 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
     return (
       <button
         type="button"
-        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200"
+        className="w-full flex justify-center items-center px-6 py-3 border cursor-pointer border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200"
         onClick={handleCompactAddToCart}
         disabled={added}
       >
-        <span className="flex items-center min-w-[120px] justify-center">
+        <span className="flex items-center min-w-[120px] justify-center ">
           {added ? (
             <>
               <FiCheck className="h-5 w-5 mr-2" />
@@ -84,7 +84,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
             </>
           ) : (
             <>
-              <FiShoppingCart className="h-5 w-5 mr-2" />
+              <FiShoppingCart className="h-5 w-5 mr-2 " />
               <span>Add to Cart</span>
             </>
           )}
@@ -98,7 +98,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
       <div className="flex items-center mb-4">
         <button
           type="button"
-          className="p-2 border border-[#CFDBD5] rounded-md hover:bg-[#E8EDDF] transition-colors duration-200"
+          className="p-2  cursor-pointer rounded-md hover:bg-[#C4C4C4] transition-colors duration-200 "
           onClick={decreaseQuantity}
           aria-label="Decrease quantity"
           disabled={added}
@@ -108,7 +108,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
         <span className="mx-4 text-[#242423] font-medium">{quantity}</span>
         <button
           type="button"
-          className="p-2 border border-[#CFDBD5] rounded-md hover:bg-[#E8EDDF] transition-colors duration-200"
+          className="p-2  cursor-pointer rounded-md hover:bg-[#C4C4C4] transition-colors duration-200"
           onClick={increaseQuantity}
           aria-label="Increase quantity"
           disabled={added}
@@ -118,7 +118,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
       </div>
       <button
         type="button"
-        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200"
+        className="w-full flex justify-center  items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200"
         onClick={handleAddToCart}
         disabled={added}
       >

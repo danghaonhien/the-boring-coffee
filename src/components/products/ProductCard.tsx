@@ -7,6 +7,7 @@ import { FiShoppingCart, FiCheck } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
+import StarRating from './StarRating';
 
 type ProductCardProps = {
   product: Product;
@@ -43,15 +44,21 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <div className="p-5">
           <h3 className="text-lg font-medium text-[#242423]">{product.name}</h3>
-          <p className="mt-2 text-sm text-[#333533] line-clamp-2">{product.description}</p>
           
-          <div className="mt-4 flex items-center justify-between">
+          {/* Star Rating */}
+          <div className="mt-1 mb-2">
+            <StarRating rating={product.rating || 0} />
+          </div>
+          
+          <p className="text-sm text-[#333533] line-clamp-2">{product.description}</p>
+          
+          <div className="mt-4 flex flex-col space-y-3">
             <p className="text-lg font-medium text-[#242423]">{formatPrice(product.price)}</p>
             
-            {/* Add to cart button - only visible on hover on desktop, always visible on mobile */}
+            {/* Add to cart button - moved below price */}
             <button
               onClick={handleAddToCart}
-              className="w-auto flex justify-center items-center cursor-pointer px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-all duration-200 sm:opacity-0 sm:group-hover:opacity-100"
+              className="w-full flex justify-center items-center cursor-pointer px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-all duration-200 sm:opacity-0 sm:group-hover:opacity-100"
             >
               <span className="flex items-center min-w-[90px] justify-center">
                 {isAdded ? (

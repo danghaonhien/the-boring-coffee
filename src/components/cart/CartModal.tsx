@@ -52,7 +52,7 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
             as={Fragment}
             enter="ease-in-out duration-300"
             enterFrom="opacity-0"
-            enterTo="opacity-100"
+            enterTo="opacity-50"
             leave="ease-in-out duration-300"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
@@ -89,22 +89,22 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                   
                                {/* Free shipping banner */}
                   {items.length > 0 && (
-                    <div className="bg-[#E8EDDF] px-4 py-3 h-[64px] flex items-center">
+                    <div className="bg-[#E8EDDF] px-4 py-3 h-[64px] flex items-center ">
                       {subtotal >= 5000 ? (
-                        <div className="text-center w-full animate-fadeIn">
-                          <p className="text-sm text-[#333533] animate-bounce">
+                        <div className="text-center w-full animate-fadeIn ">
+                          <p className="text-sm text-[#333533] animate-bounce ">
                             🎉 Woohoo! You have unlocked free shipping!
                           </p>
                         </div>
                       ) : (
-                        <div className="w-full">
-                          <div className="flex justify-between text-xs text-[#333533] mb-2">
+                        <div className="w-full ">
+                          <div className="flex justify-between text-xs text-[#333533] mb-2 ">
                             <span>Add {formatPrice(5000 - subtotal)} more to get free shipping!</span>
                             <span>{formatPrice(subtotal)} of {formatPrice(5000)}</span>
                           </div>
-                          <div className="h-2 w-full bg-[#CFDBD5] rounded-full overflow-hidden">
+                          <div className="h-2 w-full bg-[#CFDBD5] rounded-full overflow-hidden ">
                             <div 
-                              className="h-2 bg-[#F5CB5C] rounded-full transition-all duration-700 ease-out"
+                              className="h-2 bg-[#F5CB5C] rounded-full transition-all duration-700 ease-out "
                               style={{ width: `${Math.min(100, (subtotal / 5000) * 100)}%` }}
                             ></div>
                           </div>
