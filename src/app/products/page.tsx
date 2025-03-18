@@ -1,5 +1,12 @@
 import { products } from '../../data/products';
 import ProductGrid from '../../components/products/ProductGrid';
+import CategoryTabs from '../../components/products/CategoryTabs';
+
+// Define available categories
+const categories = [
+  { id: 'coffee', label: 'Coffee' },
+  { id: 'coffee-kit', label: 'Coffee Kit' },
+];
 
 export default async function ProductsPage({
   searchParams,
@@ -13,13 +20,18 @@ export default async function ProductsPage({
     ? products.filter((product) => product.category === categoryParam)
     : products;
 
+  // Get the current category label for display
+  const currentCategoryLabel = categoryParam
+    ? categories.find(cat => cat.id === categoryParam)?.label || categoryParam.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+    : 'All Products';
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <h1 className="text-3xl font-extrabold text-gray-900 mb-8">
-        {categoryParam
-          ? `${categoryParam.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Coffee`
-          : 'All Products'}
+      <h1 className="text-3xl font-display font-bold text-gray-900 mb-6">
+        {currentCategoryLabel}
       </h1>
+      
+      <CategoryTabs categories={categories} />
       
       {filteredProducts.length > 0 ? (
         <ProductGrid products={filteredProducts} />
