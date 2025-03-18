@@ -3,6 +3,7 @@ import { products } from '../data/products';
 import ProductGrid from '../components/products/ProductGrid';
 import ProductSlider from '../components/products/ProductSlider';
 import CategoryProductGrid from '../components/products/CategoryProductGrid';
+import AboutUsSection from '../components/about/AboutUsSection';
 
 export default function Home() {
   // Get featured products (first 3)
@@ -79,6 +80,9 @@ export default function Home() {
         title="Coffee Kit"
         viewAllLink="/products?category=coffee-kit"
       />
+      
+      {/* About Us section */}
+      <AboutUsSection />
 
       {/* Features section */}
       <div className="bg-[#CFDBD5]">
