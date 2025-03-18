@@ -43,12 +43,12 @@ export default function CartButton() {
     <>
       <button
         onClick={() => setIsCartOpen(true)}
-        className="relative p-2 text-[#333533] hover:text-[#F5CB5C] transition-colors"
+        className="relative p-2 text-[#333533] hover:text-[#333533] transition-colors cursor-pointer"
         aria-label="Open shopping cart"
       >
         <FiShoppingCart className="h-6 w-6" />
         {totalItems > 0 && (
-          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs text-[#E8EDDF] bg-[#F5CB5C] rounded-full">
+          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs text-[#E8EDDF] bg-[#333533] rounded-full">
             {totalItems}
           </span>
         )}

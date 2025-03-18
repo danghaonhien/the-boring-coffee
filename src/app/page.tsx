@@ -46,15 +46,15 @@ export default function Home() {
       {/* New products slider section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b border-[#CFDBD5]">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-display font-bold text-[#242423]">New Products</h2>
-          <p className="text-[#333533]">Drag to explore</p>
+          <h2 className="text-5xl font-display font-bold text-[#242423]">New Products</h2>
+          {/* <p className="text-[#333533]">Drag to explore</p> */}
         </div>
         <ProductSlider products={newProducts} />
       </div>
 
       {/* Featured products section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b border-[#CFDBD5]">
-        <h2 className="text-3xl font-display font-bold text-[#242423] mb-8">Featured Products</h2>
+        <h2 className="text-5xl font-display font-bold text-[#242423] mb-8">Featured Products</h2>
         <ProductGrid products={featuredProducts} />
         <div className="mt-12 text-center">
           <Link

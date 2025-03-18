@@ -51,21 +51,21 @@ export default function ProductCard({ product }: ProductCardProps) {
             {/* Add to cart button - only visible on hover on desktop, always visible on mobile */}
             <button
               onClick={handleAddToCart}
-              className={`${
-                isAdded ? 'bg-[#CFDBD5] text-[#242423]' : 'bg-[#F5CB5C] text-[#242423]'
-              } px-3 py-2 text-sm shadow-sm transition-all duration-200 rounded-sm flex items-center cursor-pointer sm:opacity-0 sm:group-hover:opacity-100`}
+              className="w-auto flex justify-center items-center cursor-pointer px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-all duration-200 sm:opacity-0 sm:group-hover:opacity-100"
             >
-              {isAdded ? (
-                <>
-                  <FiCheck className="mr-1 h-3 w-3" />
-                  Added
-                </>
-              ) : (
-                <>
-                  <FiShoppingCart className="mr-1 h-3 w-3" />
-                  Add to Cart
-                </>
-              )}
+              <span className="flex items-center min-w-[90px] justify-center">
+                {isAdded ? (
+                  <>
+                    <FiCheck className="h-4 w-4 mr-2" />
+                    <span>Added!</span>
+                  </>
+                ) : (
+                  <>
+                    <FiShoppingCart className="h-4 w-4 mr-2" />
+                    <span>Add to Cart</span>
+                  </>
+                )}
+              </span>
             </button>
           </div>
         </div>

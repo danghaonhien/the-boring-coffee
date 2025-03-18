@@ -12,14 +12,14 @@ export default function CategoryTabs({ categories }: CategoryTabsProps) {
   const currentCategory = searchParams.get('category');
   
   return (
-    <div className="mb-8 border-b border-gray-200">
+    <div className="mb-8 border-b border-[#CFDBD5]">
       <div className="flex overflow-x-auto py-2 hide-scrollbar">
         <Link 
           href="/products"
           className={`whitespace-nowrap px-4 py-2 mr-4 rounded-md text-sm font-medium transition-colors duration-200 ${
             !currentCategory 
-              ? 'bg-amber-100 text-amber-800' 
-              : 'text-gray-600 hover:text-amber-700'
+              ? 'bg-[#F5CB5C] text-[#242423]' 
+              : 'text-[#333533] hover:text-[#F5CB5C]'
           }`}
         >
           All Products
@@ -31,8 +31,8 @@ export default function CategoryTabs({ categories }: CategoryTabsProps) {
             href={`/products?category=${category.id}`}
             className={`whitespace-nowrap px-4 py-2 mr-4 rounded-md text-sm font-medium transition-colors duration-200 ${
               currentCategory === category.id 
-                ? 'bg-amber-100 text-amber-800' 
-                : 'text-gray-600 hover:text-amber-700'
+                ? 'bg-[#F5CB5C] text-[#242423]' 
+                : 'text-[#333533] hover:text-[#F5CB5C]'
             }`}
           >
             {category.label}

@@ -92,7 +92,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
 
   return (
     <div className="mb-12">
-      <h3 className="text-xl font-bold text-[#242423] mb-4">Compare Our Coffee</h3>
+      {/* <h3 className="text-xl font-bold text-[#242423] mb-4">Compare Our Coffee</h3> */}
       
       <div className="bg-[#E8EDDF] rounded-lg shadow-md overflow-hidden">
         <div className="flex flex-col md:flex-row">
@@ -194,9 +194,9 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               </div>
               
               {/* Drag instruction */}
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-[#242423] bg-opacity-50 text-[#E8EDDF] text-xs px-3 py-1 rounded-full">
+              {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-[#242423] bg-opacity-50 text-[#E8EDDF] text-xs px-3 py-1 rounded-full">
                 Drag to compare
-              </div>
+              </div> */}
             </div>
           </div>
           
@@ -208,11 +208,11 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   <h3 className="text-2xl font-bold text-[#242423] transition-all duration-300">
                     {displayedProduct.name}
                   </h3>
-                  <p className="text-sm text-[#333533] mt-1">
+                  {/* <p className="text-sm text-[#333533] mt-1">
                     {displayedProduct === rightProduct ? 
                       `Drag left to see ${leftProduct.name}` : 
                       `Drag right to see ${rightProduct.name}`}
-                  </p>
+                  </p> */}
                 </div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#F5CB5C] text-[#242423]">
                   New
@@ -236,7 +236,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   </div>
                   <Link
                     href={`/products/${displayedProduct.id}`}
-                    className="text-[#F5CB5C] text-sm font-medium hover:text-[#242423]"
+                    className="text-[#333533] text-sm font-medium hover:text-[#242423]"
                   >
                     View Details
                   </Link>
@@ -251,10 +251,11 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               </div>
             </div>
             
-            <div className="mt-8">
+            <div className="mt-8 ">
               <AddToCartButton 
                 product={displayedProduct} 
                 compact={false} 
+                
               />
             </div>
           </div>

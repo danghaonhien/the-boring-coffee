@@ -72,21 +72,23 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
     return (
       <button
         type="button"
-        className={`w-full ${added ? 'bg-[#333533]' : 'bg-[#F5CB5C]'} border border-transparent rounded-md py-3 px-4 flex items-center justify-center text-sm font-medium ${added ? 'text-[#E8EDDF]' : 'text-[#242423]'} hover:${added ? 'bg-[#242423]' : 'bg-[#CFDBD5]'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200`}
+        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200"
         onClick={handleCompactAddToCart}
         disabled={added}
       >
-        {added ? (
-          <>
-            <FiCheck className="h-4 w-4 mr-2" />
-            Added!
-          </>
-        ) : (
-          <>
-            <FiShoppingCart className="h-4 w-4 mr-2" />
-            Add to Cart
-          </>
-        )}
+        <span className="flex items-center min-w-[120px] justify-center">
+          {added ? (
+            <>
+              <FiCheck className="h-5 w-5 mr-2" />
+              <span>Added!</span>
+            </>
+          ) : (
+            <>
+              <FiShoppingCart className="h-5 w-5 mr-2" />
+              <span>Add to Cart</span>
+            </>
+          )}
+        </span>
       </button>
     );
   }
@@ -116,21 +118,23 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
       </div>
       <button
         type="button"
-        className={`w-full ${added ? 'bg-[#333533]' : 'bg-[#F5CB5C]'} border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium ${added ? 'text-[#E8EDDF]' : 'text-[#242423]'} hover:${added ? 'bg-[#242423]' : 'bg-[#CFDBD5]'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200`}
+        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200"
         onClick={handleAddToCart}
         disabled={added}
       >
-        {added ? (
-          <>
-            <FiCheck className="h-5 w-5 mr-2" />
-            Added to Cart!
-          </>
-        ) : (
-          <>
-            <FiShoppingCart className="h-5 w-5 mr-2" />
-            Add to Cart
-          </>
-        )}
+        <span className="flex items-center min-w-[150px] justify-center">
+          {added ? (
+            <>
+              <FiCheck className="h-5 w-5 mr-2" />
+              <span>Added to Cart!</span>
+            </>
+          ) : (
+            <>
+              <FiShoppingCart className="h-5 w-5 mr-2" />
+              <span>Add to Cart</span>
+            </>
+          )}
+        </span>
       </button>
     </div>
   );

@@ -41,10 +41,10 @@ export default function CategoryProductGrid({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b border-[#CFDBD5]">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-display font-bold text-[#242423]">{title}</h2>
+        <h2 className="text-5xl font-display font-bold text-[#242423]">{title}</h2>
         <Link
           href={viewAllLink}
-          className="text-[#F5CB5C] hover:text-[#F5CB5C]/80 flex items-center"
+          className="text-[#333533] hover:text-[#242423]/80 flex items-center"
         >
           View All <FiArrowRight className="ml-1" />
         </Link>
@@ -71,7 +71,7 @@ export default function CategoryProductGrid({
                 <p className="text-lg font-medium text-[#242423]">${featuredProduct.price.toFixed(2)}</p>
                 <Link
                   href={`/products/${featuredProduct.id}`}
-                  className="text-[#F5CB5C] hover:text-[#F5CB5C]/80"
+                  className="text-[#333533] hover:text-[#242423]/80"
                 >
                   View Details
                 </Link>
@@ -88,10 +88,10 @@ export default function CategoryProductGrid({
       
       {/* Show more button */}
       {hasMoreProducts && !showMore && (
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center ">
           <button
             onClick={() => setShowMore(true)}
-            className="inline-block bg-[#E8EDDF] border border-[#CFDBD5] rounded-md py-2 px-8 font-medium text-[#242423] hover:bg-[#CFDBD5]"
+            className="inline-block bg-[#E8EDDF] cursor-pointer border border-[#CFDBD5] rounded-md py-2 px-8 font-medium text-[#242423] hover:bg-[#CFDBD5]"
           >
             Show More
           </button>

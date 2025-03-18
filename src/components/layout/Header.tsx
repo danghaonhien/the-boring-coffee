@@ -32,7 +32,7 @@ export default function Header() {
 
   return (
     <header 
-      className={`bg-[#E8EDDF] ${
+      className={`bg-[#F5CB5C] ${
         isScrolled 
           ? 'shadow-md border-b-0 py-2' 
           : 'shadow-sm border-b border-[#CFDBD5] py-4'
@@ -44,25 +44,25 @@ export default function Header() {
             <Link href="/" className="flex-shrink-0 flex items-center space-x-2">
               <FiCoffee className="h-8 w-8 text-[#F5CB5C]" />
               <span className="font-display text-3xl font-bold text-[#242423] tracking-tight">
-                The <span className="text-[#F5CB5C]">Boring</span> Coffee
+                The <span className="text-[#333533]">Boring</span> Coffee
               </span>
             </Link>
             <nav className="hidden md:ml-8 md:flex md:space-x-8">
               <Link 
                 href="/products" 
-                className="text-[#333533] hover:text-[#F5CB5C] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
+                className="text-[#333533] hover:text-[#333533] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
               >
                 Shop
               </Link>
               <Link 
                 href="/about" 
-                className="text-[#333533] hover:text-[#F5CB5C] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
+                className="text-[#333533] hover:text-[#333533] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
               >
                 About
               </Link>
               <Link 
                 href="/contact" 
-                className="text-[#333533] hover:text-[#F5CB5C] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
+                className="text-[#333533] hover:text-[#333533] px-3 py-2 text-base font-medium font-sans transition-colors duration-200"
               >
                 Contact
               </Link>
@@ -72,13 +72,13 @@ export default function Header() {
             <CartButton />
             <Link 
               href="/account" 
-              className="p-2 text-[#333533] hover:text-[#F5CB5C] ml-4 transition-colors duration-200"
+              className="p-2 text-[#333533] hover:text-[#333533] ml-4 transition-colors duration-200"
             >
               <FiUser className="h-7 w-7" />
             </Link>
             <button
               type="button"
-              className="md:hidden p-2 text-[#333533] hover:text-[#F5CB5C] ml-4 transition-colors duration-200"
+              className="md:hidden p-2 text-[#333533] hover:text-[#333533] ml-4 transition-colors duration-200"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -94,19 +94,19 @@ export default function Header() {
           <div className="pt-2 pb-3 space-y-1 border-t border-[#CFDBD5]">
             <Link 
               href="/products" 
-              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#F5CB5C] hover:bg-[#CFDBD5]"
+              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#333533] hover:bg-[#CFDBD5]"
             >
               Shop
             </Link>
             <Link 
               href="/about" 
-              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#F5CB5C] hover:bg-[#CFDBD5]"
+              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#333533] hover:bg-[#CFDBD5]"
             >
               About
             </Link>
             <Link 
               href="/contact" 
-              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#F5CB5C] hover:bg-[#CFDBD5]"
+              className="block pl-4 pr-4 py-3 text-base font-medium text-[#333533] hover:text-[#333533] hover:bg-[#CFDBD5]"
             >
               Contact
             </Link>
