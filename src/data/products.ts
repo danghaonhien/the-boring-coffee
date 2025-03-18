@@ -11,6 +11,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.8,
+    roastLevel: 20, // Light roast
   },
   {
     id: '2',
@@ -22,6 +23,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.9,
+    roastLevel: 85, // Dark roast
   },
   {
     id: '3',
@@ -33,6 +35,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.5,
+    roastLevel: 50, // Medium roast
   },
   {
     id: '4',
@@ -44,6 +47,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.7,
+    roastLevel: 65, // Medium-dark roast
   },
   {
     id: '5',
@@ -55,6 +59,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 3.9,
+    roastLevel: 75, // Dark roast
   },
   {
     id: '6',
@@ -66,6 +71,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.3,
+    roastLevel: 40, // Medium-light roast
   },
   {
     id: '7',
@@ -132,6 +138,7 @@ export const products: Product[] = [
     stock: 50,
     category: 'coffee',
     rating: 4.5,
+    roastLevel: 60, // Medium-dark roast
   },
   {
     id: '13',
@@ -143,6 +150,7 @@ export const products: Product[] = [
     stock: 80,
     category: 'coffee',
     rating: 4.7,
+    roastLevel: 70, // Medium-dark roast
   },
   {
     id: '14',

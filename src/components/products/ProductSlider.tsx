@@ -8,6 +8,7 @@ import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
 import AddToCartButton from './AddToCartButton';
 import StarRating from './StarRating';
+import RoastMeter from './RoastMeter';
 
 type ProductSliderProps = {
   products: Product[];
@@ -226,9 +227,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               <div className="mt-6 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div 
-                      className="w-10 h-10 rounded-full mr-3 bg-[#CFDBD5] transition-all duration-300"
-                    ></div>
+                
                     <div>
                       <h4 className="font-medium text-[#242423]">
                         {displayedProduct.name}
@@ -252,6 +251,13 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                 <p className="text-[#333533] text-sm">
                   {displayedProduct.description}
                 </p>
+                
+                {/* Show RoastMeter only for coffee products */}
+                {displayedProduct.category === 'coffee' && displayedProduct.roastLevel !== undefined && (
+                  <div className="mt-4">
+                    <RoastMeter roastLevel={displayedProduct.roastLevel} />
+                  </div>
+                )}
               </div>
             </div>
             
@@ -259,7 +265,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               <AddToCartButton  
              
                 product={displayedProduct} 
-                compact={false} 
+                compact={true} 
                 
               />
             </div>
