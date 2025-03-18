@@ -86,7 +86,7 @@ export default function NewsletterModal() {
               <div className="absolute top-0 right-0 pt-4 pr-4 z-10">
                 <button
                   type="button"
-                  className="bg-transparent rounded-md text-white hover:text-[#F5CB5C] focus:outline-none"
+                  className="bg-transparent cursor-pointer rounded-md text-[#333533] hover:text-[#242423] focus:outline-none"
                   onClick={closeModal}
                 >
                   <span className="sr-only">Close</span>
@@ -120,6 +120,11 @@ export default function NewsletterModal() {
                 
                 <div className="w-full sm:w-2/5 p-6 sm:p-8">
                   <div className="text-center sm:text-left">
+                    {/* Mobile only title */}
+                    <h2 className="text-2xl font-bold mb-3 text-[#242423] block sm:hidden">
+                      Join Our <span className="text-[#F5CB5C]">Coffee</span> Club
+                    </h2>
+                    
                     <Dialog.Title as="h3" className="text-xl sm:text-2xl font-bold leading-6 text-[#242423]">
                       Get 15% Off Your First Order
                     </Dialog.Title>
@@ -132,7 +137,7 @@ export default function NewsletterModal() {
                   
                   <div className="mt-6">
                     {!isSubmitted ? (
-                      <form onSubmit={handleSubmit} className="space-y-4">
+                      <form onSubmit={handleSubmit} className="space-y-4 min-h-[180px]">
                         <div>
                           <label htmlFor="email" className="sr-only">
                             Email address
@@ -157,7 +162,7 @@ export default function NewsletterModal() {
                           <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full flex justify-center items-center px-5 py-2 text-sm border border-transparent rounded-md shadow-sm font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200 disabled:opacity-50"
+                            className="w-full flex justify-center items-center cursor-pointer px-5 py-2 text-sm border border-transparent rounded-md shadow-sm font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200 disabled:opacity-50"
                           >
                             {isLoading ? 'Subscribing...' : 'Get 15% Off'}
                           </button>
@@ -168,7 +173,7 @@ export default function NewsletterModal() {
                         </p>
                       </form>
                     ) : (
-                      <div className="text-center py-4">
+                      <div className="text-center py-4 min-h-[180px] flex flex-col justify-center">
                         <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#F5CB5C]/20 mb-4">
                           <FiCheck className="h-6 w-6 text-[#F5CB5C]" aria-hidden="true" />
                         </div>
