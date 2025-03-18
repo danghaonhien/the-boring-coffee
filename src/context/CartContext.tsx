@@ -47,8 +47,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cart', JSON.stringify(items));
     }
   }, [items]);
-
+  
   const addItem = (product: Product, quantity: number) => {
+    // Validate that quantity is a positive number
+    const validQuantity = Math.max(1, quantity);
+    
+    // Use a unique transaction ID
+    const transactionId = generateId();
+    
+    // Update items transactionally to prevent duplicate operations
     setItems((prevItems) => {
       // Check if item already exists in cart
       const existingItemIndex = prevItems.findIndex(
@@ -56,23 +63,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
       );
 
       if (existingItemIndex >= 0) {
-        // Update quantity of existing item
+        // Update the existing item
         const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += quantity;
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + validQuantity,
+          // Don't add an updated_at property since it's not in the CartItem type
+        };
+        
+        console.log(`[${transactionId}] Added ${validQuantity} to ${product.name}. New total: ${updatedItems[existingItemIndex].quantity}`);
         return updatedItems;
       } else {
         // Add new item
-        return [
-          ...prevItems,
-          {
-            id: generateId(),
-            user_id: '', // Will be set when user is authenticated
-            product_id: product.id,
-            quantity,
-            created_at: new Date().toISOString(),
-            product,
-          },
-        ];
+        const newItem = {
+          id: generateId(),
+          user_id: '', // Will be set when user is authenticated
+          product_id: product.id,
+          quantity: validQuantity,
+          created_at: new Date().toISOString(),
+          product,
+        };
+        
+        console.log(`[${transactionId}] Added new item: ${validQuantity} of ${product.name}`);
+        return [...prevItems, newItem];
       }
     });
   };

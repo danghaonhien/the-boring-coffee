@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { FiShoppingCart, FiMinus, FiPlus } from 'react-icons/fi';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { FiShoppingCart, FiMinus, FiPlus, FiCheck } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
 import { useCart } from '../../context/CartContext';
 
@@ -12,7 +12,21 @@ type AddToCartButtonProps = {
 
 export default function AddToCartButton({ product, compact = false }: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
   const { addItem } = useCart();
+  
+  // Keep track of the last click time to debounce
+  const lastClickTime = useRef(0);
+
+  // Reset feedback state after delay
+  useEffect(() => {
+    if (added) {
+      const timer = setTimeout(() => {
+        setAdded(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [added]);
 
   const decreaseQuantity = () => {
     setQuantity((prev) => Math.max(1, prev - 1));
@@ -22,20 +36,57 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
     setQuantity((prev) => prev + 1);
   };
 
-  const handleAddToCart = () => {
+  // Use useCallback to memoize the handler
+  const handleAddToCart = useCallback(() => {
+    // Implement debounce to prevent double clicks
+    const now = Date.now();
+    if (now - lastClickTime.current < 500) {
+      return; // Ignore clicks that happen too quickly
+    }
+    
+    lastClickTime.current = now;
+    console.log(`Adding ${quantity} of ${product.name} at ${now}`);
+    
+    // Add to cart
     addItem(product, quantity);
-    setQuantity(1);
-  };
+    setAdded(true);
+  }, [addItem, product, quantity]);
+
+  // Use useCallback for the compact version too
+  const handleCompactAddToCart = useCallback(() => {
+    // Implement debounce to prevent double clicks
+    const now = Date.now();
+    if (now - lastClickTime.current < 500) {
+      return; // Ignore clicks that happen too quickly
+    }
+    
+    lastClickTime.current = now;
+    console.log(`Adding 1 of ${product.name} at ${now}`);
+    
+    // Add to cart
+    addItem(product, 1);
+    setAdded(true);
+  }, [addItem, product]);
 
   if (compact) {
     return (
       <button
         type="button"
-        className="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-4 flex items-center justify-center text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        onClick={() => addItem(product, 1)}
+        className={`w-full ${added ? 'bg-green-600' : 'bg-amber-700'} border border-transparent rounded-md py-3 px-4 flex items-center justify-center text-sm font-medium text-white hover:${added ? 'bg-green-700' : 'bg-amber-800'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200`}
+        onClick={handleCompactAddToCart}
+        disabled={added}
       >
-        <FiShoppingCart className="h-4 w-4 mr-2" />
-        Add to Cart
+        {added ? (
+          <>
+            <FiCheck className="h-4 w-4 mr-2" />
+            Added!
+          </>
+        ) : (
+          <>
+            <FiShoppingCart className="h-4 w-4 mr-2" />
+            Add to Cart
+          </>
+        )}
       </button>
     );
   }
@@ -45,29 +96,41 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
       <div className="flex items-center mb-4">
         <button
           type="button"
-          className="p-2 border border-gray-300 rounded-md"
+          className="p-2 border border-gray-300 rounded-md hover:bg-amber-50 transition-colors duration-200"
           onClick={decreaseQuantity}
           aria-label="Decrease quantity"
+          disabled={added}
         >
-          <FiMinus className="h-4 w-4" />
+          <FiMinus className="h-4 w-4 text-amber-700" />
         </button>
-        <span className="mx-4 text-gray-900">{quantity}</span>
+        <span className="mx-4 text-gray-900 font-medium">{quantity}</span>
         <button
           type="button"
-          className="p-2 border border-gray-300 rounded-md"
+          className="p-2 border border-gray-300 rounded-md hover:bg-amber-50 transition-colors duration-200"
           onClick={increaseQuantity}
           aria-label="Increase quantity"
+          disabled={added}
         >
-          <FiPlus className="h-4 w-4" />
+          <FiPlus className="h-4 w-4 text-amber-700" />
         </button>
       </div>
       <button
         type="button"
-        className="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className={`w-full ${added ? 'bg-green-600' : 'bg-amber-700'} border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:${added ? 'bg-green-700' : 'bg-amber-800'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200`}
         onClick={handleAddToCart}
+        disabled={added}
       >
-        <FiShoppingCart className="h-5 w-5 mr-2" />
-        Add to Cart
+        {added ? (
+          <>
+            <FiCheck className="h-5 w-5 mr-2" />
+            Added to Cart!
+          </>
+        ) : (
+          <>
+            <FiShoppingCart className="h-5 w-5 mr-2" />
+            Add to Cart
+          </>
+        )}
       </button>
     </div>
   );
