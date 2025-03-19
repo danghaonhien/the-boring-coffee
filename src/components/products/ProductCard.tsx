@@ -76,7 +76,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   </>
                 ) : (
                   <>
-                    <FiShoppingCart className="h-4 w-4 mr-2" />
+                    {/* <FiShoppingCart className="h-4 w-4 mr-2" /> */}
                     <span>Add to Cart</span>
                   </>
                 )}

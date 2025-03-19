@@ -133,7 +133,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
               </>
             ) : (
               <>
-                <FiShoppingCart className="h-5 w-5 mr-2" />
+                {/* <FiShoppingCart className="h-5 w-5 mr-2" /> */}
                 <span>Add to Cart</span>
               </>
             )}
