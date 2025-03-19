@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FiUser, FiMenu, FiCoffee } from 'react-icons/fi';
+import { FiUser, FiMenu } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import CartButton from '../cart/CartButton';
 
@@ -42,7 +42,7 @@ export default function Header() {
         <div className="flex justify-between h-14">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center space-x-2">
-              <FiCoffee className="h-8 w-8 text-[#333533]" />
+              {/* <FiCoffee className="h-8 w-8 text-[#333533]" /> */}
               <span className="font-display text-3xl font-bold text-[#242423] tracking-tight">
                 The <span className="text-[#333533]">Boring</span> Coffee
               </span>

@@ -65,9 +65,9 @@ export default function ProductCard({ product }: ProductCardProps) {
               <div className="flex flex-col">
                 <div className="flex items-center gap-3">
                   <p className="text-sm sm:text-lg font-medium text-coffee-700">{formatPrice(product.price)}</p>
-                  <p className="text-sm line-through text-coffee-400">{formatPrice(product.original_price)}</p>
-                  <span className="bg-coffee-700 text-white text-xs px-2 py-0.5 rounded">
-                    {product.discount_percentage}% OFF
+                  <p className="text-xs sm:text-sm line-through text-coffee-400">{formatPrice(product.original_price)}</p>
+                  <span className=" text-[#333533] text-xs sm:text-sm px-2 py-0.5 rounded">
+                  {product.discount_percentage}% OFF
                   </span>
                 </div>
               </div>

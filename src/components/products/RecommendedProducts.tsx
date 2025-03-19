@@ -141,9 +141,21 @@ export default function RecommendedProducts({
                       <h3 className="text-md font-medium text-[#242423] truncate max-w-[120px]">
                         {product.name}
                       </h3>
-                      <p className="mt-1 text-sm text-[#333533]">
-                        {formatPrice(product.price)}
-                      </p>
+                      {product.original_price && product.discount_percentage ? (
+                        <div className="mt-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-coffee-700">{formatPrice(product.price)}</p>
+                            <p className="text-xs line-through text-coffee-400">{formatPrice(product.original_price)}</p>
+                          <span className="inline-block mt-0.5 bg-coffee-700 text-[#333533] text-xs px-1.5 py-0.5 rounded-sm">
+                            SAVE {product.discount_percentage}%
+                          </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="mt-1 text-sm text-[#333533]">
+                          {formatPrice(product.price)}
+                        </p>
+                      )}
                     </div>
                     <button
                       onClick={() => addItem(product, 1)}
