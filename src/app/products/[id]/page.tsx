@@ -8,6 +8,7 @@ import ProductReviews from '../../../components/products/ProductReviews';
 import ProductImageSlider from '../../../components/products/ProductImageSlider';
 import ProductStory from '../../../components/products/ProductStory';
 import VietnamesePhinGuide from '../../../components/products/VietnamesePhinGuide';
+import StickyProductFooter from '../../../components/products/StickyProductFooter';
 
 type ProductPageProps = {
   params: {
@@ -96,6 +97,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <ProductReviews productId={product.id} productName={product.name} />
       </div>
     </div>
+    
+    {/* Sticky footer that appears when scrolling */}
+    <StickyProductFooter product={product} />
     </div>
   );
 } 
