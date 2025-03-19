@@ -9,6 +9,7 @@ import ProductImageSlider from '../../../components/products/ProductImageSlider'
 import ProductStory from '../../../components/products/ProductStory';
 import VietnamesePhinGuide from '../../../components/products/VietnamesePhinGuide';
 import StickyProductFooter from '../../../components/products/StickyProductFooter';
+import RecommendedProducts from '../../../components/products/RecommendedProducts';
 
 type ProductPageProps = {
   params: {
@@ -95,6 +96,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
       {/* Reviews Section */}
       <div className="mt-16 border-t border-[#CFDBD5] pt-10">
         <ProductReviews productId={product.id} productName={product.name} />
+      </div>
+      
+      {/* Recommended Products Section */}
+      <div className="mt-16 border-t border-[#CFDBD5]">
+        <RecommendedProducts 
+          currentProductId={product.id}
+          products={products}
+          title="You Might Also Like"
+        />
       </div>
     </div>
     
