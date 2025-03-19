@@ -49,6 +49,7 @@ DROP POLICY IF EXISTS "Enable read access for all users" ON "public"."products";
 DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON "public"."products";
 DROP POLICY IF EXISTS "Enable update for authenticated users only" ON "public"."products";
 DROP POLICY IF EXISTS "Enable insert for anonymous users" ON "public"."products";
+DROP POLICY IF EXISTS "Enable delete for anonymous users" ON "public"."products";
 
 -- Create a policy to allow public read access to all products
 CREATE POLICY "Enable read access for all users" 
@@ -76,6 +77,13 @@ CREATE POLICY "Enable update for authenticated users only"
 ON "public"."products"
 FOR UPDATE 
 TO authenticated
+USING (true);
+
+-- Create a policy to allow anonymous users to delete products
+CREATE POLICY "Enable delete for anonymous users" 
+ON "public"."products"
+FOR DELETE 
+TO anon
 USING (true);
 
 -- Add some test products (these will get inserted if there are no products)

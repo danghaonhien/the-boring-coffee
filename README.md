@@ -23,7 +23,7 @@ This script does three important things:
 
 ### Step 2: Import Products Using Admin Panel
 
-The easiest way to add products to your Supabase database is to use the built-in admin panel:
+The admin panel provides flexible options for importing products to your Supabase database:
 
 1. Start your Next.js app:
    ```bash
@@ -35,11 +35,44 @@ The easiest way to add products to your Supabase database is to use the built-in
    http://localhost:3000/admin
    ```
 
-3. Click the "Import Products" button to import all products from the local data into your Supabase database.
+3. Import products in several ways:
+   - **Bulk Import**: Click "Import All" to add all local products at once
+   - **Selective Import**: Expand the product list, select specific items, then click "Import Selected"
+   - **Categorized Selection**: Products are grouped by category for easier selection
 
-4. You can also use the "Test Database Connection" button to verify your Supabase connection.
+4. The collapsible product list shows:
+   - Product names and prices
+   - Category groupings
+   - Selection checkboxes with "Select All" option
+   - Running count of selected items
 
-### Step 3: Restart Your App
+5. You can also use the "Test Database Connection" button to verify your Supabase connection.
+
+### Step 3: Manage Inventory with the Admin Panel
+
+The admin panel now includes comprehensive inventory management features:
+
+1. **Filtering**: Filter products by:
+   - Category
+   - Product name (search)
+   - Minimum stock level
+
+2. **Sorting**: Click on column headers to sort by:
+   - Name
+   - Category
+   - Price
+   - Stock
+
+3. **Stock Management**: Update stock quantities directly in the table
+   - Changes are saved automatically when you click away
+
+4. **Product Deletion**: Remove products with a two-step confirmation process
+   - Click "Delete" once to confirm
+   - Click "Confirm Delete" to permanently remove the product
+
+These features make it easy to manage your inventory and keep track of product stock levels without needing to access the Supabase dashboard directly.
+
+### Step 4: Restart Your App
 
 After setting up Supabase and importing products, restart your Next.js development server:
 
