@@ -18,6 +18,15 @@ export const products: Product[] = [
     category: 'coffee',
     rating: 4.8,
     roastLevel: 20, // Light roast
+    story: "Lightmode coffee was born from our founder's desire for a coffee that would energize morning coding sessions without the mid-day crash. Sourced from high-altitude farms in Ethiopia, these beans are carefully selected for their bright profile and distinctive citrus notes. Our light roasting process preserves the beans' natural complexity while developing a clean, crisp flavor profile that awakens the senses – just like switching your IDE to light mode after a long night of coding.",
+    howTo: [
+      "Start with freshly roasted beans – Lightmode is best used within 2-3 weeks of the roast date",
+      "Grind beans to medium-fine consistency, similar to table salt",
+      "For pour-over: use 18g coffee to 300ml water at 195-205°F",
+      "Pour in spirals, starting from the center",
+      "Brew time should be approximately 2:30-3:00 minutes",
+      "Best enjoyed black to experience the full flavor profile"
+    ]
   },
   {
     id: '2',
@@ -36,6 +45,16 @@ export const products: Product[] = [
     category: 'coffee',
     rating: 4.9,
     roastLevel: 85, // Dark roast
+    story: "Darkmode was created for those intense late-night debugging sessions when you need a coffee as strong as your resolve to fix that stubborn bug. These beans are sourced from the volcanic soils of Sumatra and roasted to a rich, dark profile that brings out deep chocolate and earthy notes. Just as developers switch to dark mode to reduce eye strain during long coding sessions, Darkmode coffee provides a smooth, low-acid experience that's easy on your system even when you're coding until dawn.",
+    howTo: [
+      "Store beans in an airtight container away from light",
+      "Grind beans to coarse consistency right before brewing",
+      "For French press: use 30g coffee to 500ml water",
+      "Water temperature should be 195-205°F",
+      "Steep for 4 minutes before pressing",
+      "Pairs well with a splash of cream to enhance the chocolate notes",
+      "Excellent as cold brew for summer debugging sessions"
+    ]
   },
   {
     id: '3',

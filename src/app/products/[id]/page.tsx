@@ -6,6 +6,8 @@ import StarRating from '../../../components/products/StarRating';
 import RoastMeter from '../../../components/products/RoastMeter';
 import ProductReviews from '../../../components/products/ProductReviews';
 import ProductImageSlider from '../../../components/products/ProductImageSlider';
+import ProductStory from '../../../components/products/ProductStory';
+import VietnamesePhinGuide from '../../../components/products/VietnamesePhinGuide';
 
 type ProductPageProps = {
   params: {
@@ -75,6 +77,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Story Section */}
+      {product.story && (
+        <div className="mt-16 border-t border-[#CFDBD5]">
+          <ProductStory story={product.story} productName={product.name} />
+        </div>
+      )}
+      
+      {/* How To Section - Vietnamese Phin Guide */}
+      <div className="mt-16 border-t border-[#CFDBD5]">
+        <VietnamesePhinGuide />
       </div>
       
       {/* Reviews Section */}
