@@ -45,7 +45,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </span> */}
           </div>
           
-          <p className="mt-4 text-xl sm:text-2xl text-[#242423]">{formatPrice(product.price)}</p>
+          {product.original_price && product.discount_percentage ? (
+            <div className="mt-4 flex items-center gap-3">
+              <p className="text-xl sm:text-2xl font-medium text-coffee-700">{formatPrice(product.price)}</p>
+              <p className="text-lg line-through text-coffee-400">{formatPrice(product.original_price)}</p>
+              <span className="bg-coffee-700 text-white text-sm px-2 py-0.5 rounded">
+                {product.discount_percentage}% OFF
+              </span>
+            </div>
+          ) : (
+            <p className="mt-4 text-xl sm:text-2xl text-[#242423]">{formatPrice(product.price)}</p>
+          )}
+          
           <div className="mt-6">
             <h2 className="text-lg sm:text-lg font-medium text-[#242423]">Use Case</h2>
             <p className="mt-2 text-base sm:text-md text-[#333533]">{product.description}</p>

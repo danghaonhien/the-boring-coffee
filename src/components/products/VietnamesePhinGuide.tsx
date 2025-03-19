@@ -1,6 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import AddToCartButton from './AddToCartButton';
+import { products } from '../../data/products';
 
 const phinSteps = [
   {
@@ -41,6 +43,14 @@ const phinSteps = [
 ];
 
 export default function VietnamesePhinGuide() {
+  // Get the Phin bundle product from the data
+  const phinBundle = products.find(product => product.id === '15');
+
+  if (!phinBundle) {
+    console.error('Phin bundle product not found');
+    return null;
+  }
+
   return (
     <div className="py-12">
       <h2 className="text-3xl font-bold text-[#242423] mb-8 text-center">Vietnamese Phin Brewing Guide</h2>
@@ -78,7 +88,7 @@ export default function VietnamesePhinGuide() {
       
       <div className="mt-12 bg-[#242423] text-[#E8EDDF] p-8 rounded-lg">
         <h3 className="text-xl font-semibold mb-4">Pro Tips</h3>
-        <ul className="space-y-2">
+        <ul className="space-y-2 mb-6">
           <li className="flex items-start">
             <span className="inline-block mr-2">•</span>
             <span>For iced coffee, brew with slightly more coffee grounds and pour directly over ice.</span>
@@ -96,6 +106,54 @@ export default function VietnamesePhinGuide() {
             <span>Clean your phin thoroughly after each use to maintain optimal flavor.</span>
           </li>
         </ul>
+        
+        {/* CTA for Phin Filter Bundle */}
+        <div className="mt-8 border-t border-[#333533] pt-6">
+          <div className="bg-coffee-100 text-coffee-900 p-6 rounded-lg flex flex-col md:flex-row gap-8 relative overflow-hidden">
+            <div className="md:w-2/5 relative z-10">
+              <h3 className="text-2xl font-bold text-espresso-600 mb-2">BUNDLE UP AND SAVE</h3>
+              <h4 className="text-xl font-bold mb-4">THE ORIGINAL PHIN KIT (FILTER + COFFEE)</h4>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="line-through text-coffee-500 text-lg">${(phinBundle.original_price || 0) / 100}.00</span>
+                <span className="text-2xl font-bold text-espresso-600">${phinBundle.price / 100}.00</span>
+                {phinBundle.discount_percentage && (
+                  <span className="bg-espresso-600 text-white text-xs px-2 py-0.5 rounded">
+                    {phinBundle.discount_percentage}% OFF
+                  </span>
+                )}
+              </div>
+              <p className="mb-4">
+                This Vietnamese coffee starter kit comes with 1 bag of coffee and 1 
+                Phin Filter. GLASS NOT INCLUDED. Invest in something that will 
+                improve your daily ritual. It&apos;s a game changer. You&apos;ll thank us later.
+              </p>
+              <div>
+                <h5 className="font-bold mb-2">What&apos;s inside</h5>
+                <ul className="mb-6">
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-coffee-800"></span>
+                    <span>Phin Filter</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-coffee-800"></span>
+                    <span>Coffee - Choose your blend</span>
+                  </li>
+                </ul>
+                <AddToCartButton product={phinBundle} compact={true} />
+              </div>
+            </div>
+            <div className="md:w-3/5 flex items-center justify-center relative">
+              <Image
+                src="/images/how-to/phin-bundle.jpg"
+                alt="Phin Filter Bundle"
+                width={400}
+                height={400}
+                className="object-contain z-10"
+                unoptimized
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

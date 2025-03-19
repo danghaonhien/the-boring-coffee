@@ -11,6 +11,29 @@ export function formatPrice(price: number): string {
 }
 
 /**
+ * Format a sale price with original price, discounted price, and percentage
+ * @param price - Current price in cents
+ * @param originalPrice - Original price in cents
+ * @param discountPercentage - Discount percentage
+ * @returns JSX element with formatted prices and discount
+ */
+export function formatSalePrice(
+  price: number,
+  originalPrice?: number,
+  discountPercentage?: number
+) {
+  if (!originalPrice || !discountPercentage) {
+    return formatPrice(price);
+  }
+  
+  return {
+    originalPrice: formatPrice(originalPrice),
+    currentPrice: formatPrice(price),
+    discountPercentage
+  };
+}
+
+/**
  * Generate a random ID
  * @returns Random ID string
  */

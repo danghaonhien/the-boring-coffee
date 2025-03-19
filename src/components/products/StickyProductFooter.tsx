@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { FiShoppingCart } from 'react-icons/fi';
+// import { FiShoppingCart } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
@@ -94,9 +94,23 @@ export default function StickyProductFooter({ product }: StickyProductFooterProp
                 <h3 className="text-lg font-medium text-[#242423] truncate max-w-[150px] sm:max-w-none">
                   {product.name}
                 </h3>
-                <p className="text-sm font-medium text-[#333533]">
-                  {formatPrice(product.price)}
-                </p>
+                {product.original_price && product.discount_percentage ? (
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-coffee-700">
+                      {formatPrice(product.price)}
+                    </p>
+                    <p className="text-xs line-through text-coffee-400">
+                      {formatPrice(product.original_price)}
+                    </p>
+                    <span className="bg-coffee-700 text-white text-xs px-1.5 py-0.5 rounded">
+                      {product.discount_percentage}% OFF
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-sm font-medium text-[#333533]">
+                    {formatPrice(product.price)}
+                  </p>
+                )}
               </div>
             </div>
             

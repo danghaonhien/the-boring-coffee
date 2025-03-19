@@ -4,6 +4,8 @@ export type Product = {
   name: string;
   description: string;
   price: number;
+  original_price?: number; // Price before discount
+  discount_percentage?: number; // Percentage discount (e.g., 15 for 15% off)
   image_url: string;
   image_gallery?: string[]; // Array of additional image URLs
   stock: number;

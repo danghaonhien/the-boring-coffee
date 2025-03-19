@@ -61,7 +61,9 @@ export const products: Product[] = [
     created_at: new Date().toISOString(),
     name: 'Function',
     description: 'A medium roast with nutty flavors that returns consistent energy every time.',
-    price: 1549, // $15.49
+    price: 1299, // $12.99
+    original_price: 1549, // $15.49
+    discount_percentage: 16, // 16% off
     image_url: '/images/darkmode.jpg',
     image_gallery: [
       '/images/darkmode.jpg',
@@ -201,7 +203,9 @@ export const products: Product[] = [
     created_at: new Date().toISOString(),
     name: 'Travel French Press',
     description: 'Insulated French press that\'s perfect for the developer on the go.',
-    price: 2999, // $29.99
+    price: 2499, // $24.99
+    original_price: 2999, // $29.99
+    discount_percentage: 17, // 17% off
     image_url: '/images/travel-french-press.jpg',
     image_gallery: [
       '/images/travel-french-press.jpg',
@@ -265,5 +269,33 @@ export const products: Product[] = [
     stock: 25,
     category: 'coffee-kit',
     rating: 4.6,
+  },
+  {
+    id: '15',
+    created_at: new Date().toISOString(),
+    name: 'The Original Phin Kit',
+    description: 'Vietnamese coffee starter kit with 1 bag of coffee and 1 Phin Filter.',
+    price: 2900, // $29.00
+    original_price: 3100, // $31.00
+    discount_percentage: 6, // 6% off
+    image_url: '/images/how-to/phin-bundle.jpg',
+    image_gallery: [
+      '/images/how-to/phin-bundle.jpg',
+      '/images/how-to/phin-step1.jpg',
+      '/images/how-to/phin-step2.jpg'
+    ],
+    stock: 30,
+    category: 'coffee-kit',
+    rating: 4.8,
+    roastLevel: 50, // Medium roast
+    story: "Our Vietnamese Phin Kit combines tradition with quality. The Phin filter is an iconic brewing method that creates rich, intense coffee with a distinct profile. This starter kit gives you everything you need to begin your Vietnamese coffee journey—a premium Phin filter and your choice of our exceptional coffee blends. Simply add hot water and enjoy the slow, meditative brewing process.",
+    howTo: [
+      "Place the metal filter chamber on top of a cup or glass",
+      "Add 2-3 tablespoons of medium-coarse ground coffee",
+      "Insert press filter and press down gently",
+      "Pour a small amount of hot water to bloom for 30 seconds",
+      "Fill the chamber with hot water and wait 4-5 minutes",
+      "For traditional Vietnamese coffee, add sweetened condensed milk to taste"
+    ]
   },
 ]; 

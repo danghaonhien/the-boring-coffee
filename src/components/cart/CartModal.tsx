@@ -4,7 +4,7 @@ import { useEffect, Fragment, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Dialog, Transition } from '@headlessui/react';
-import { FiX, FiPlus, FiMinus, FiShoppingBag, FiChevronRight, FiChevronLeft } from 'react-icons/fi';
+import { FiX, FiShoppingBag, FiChevronRight, FiChevronLeft, FiPlus } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { formatPrice } from '../../lib/utils';
 import { Product } from '../../types/database.types';
@@ -175,44 +175,53 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                               )}
                             </div>
 
-                            <div className="ml-4 flex flex-1 flex-col">
-                              <div>
-                                <div className="flex justify-between">
-                                  <div>
-                                    <h3 className="text-base font-medium text-[#242423]">
-                                      {item.product?.name}
-                                    </h3>
-                            
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeItem(item.id)}
-                                    className="text-[#333533] hover:text-[#242423]"
-                                    aria-label="Remove item"
-                                  >
-                                    <FiX className="h-5 w-5" />
-                                  </button>
+                            <div className="ml-4 flex flex-1 flex-col justify-between">
+                              <div className="flex justify-between">
+                                <div>
+                                  <h3 className="text-base font-medium text-[#242423]">
+                                    {item.product?.name}
+                                  </h3>
+                                  <p className="mt-1 text-sm text-[#333533]">
+                                    SIZE: ONE SIZE
+                                  </p>
                                 </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeItem(item.id)}
+                                  className="text-[#333533] hover:text-[#242423]"
+                                  aria-label="Remove item"
+                                >
+                                  <FiX className="h-5 w-5" />
+                                </button>
                               </div>
-                              <div className="mt-auto flex items-end justify-between text-sm">
-                                <div className="flex items-center ">
+                              
+                              <div className="flex justify-between items-end mt-4">
+                                <div className="flex border border-[#CFDBD5] rounded">
                                   <button
                                     onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                                    className="p-2 text-[#333533] hover:bg-[#CFDBD5]"
+                                    className="px-3 py-1 text-[#333533] hover:bg-[#CFDBD5] border-r border-[#CFDBD5]"
                                     aria-label="Decrease quantity"
                                   >
-                                    <FiMinus className="h-3 w-3" />
+                                    -
                                   </button>
-                                  <span className="px-3 py-1">{item.quantity}</span>
+                                  <span className="px-3 py-1 min-w-[30px] text-center">{item.quantity}</span>
                                   <button
                                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                    className="p-2 text-[#333533] hover:bg-[#CFDBD5]"
+                                    className="px-3 py-1 text-[#333533] hover:bg-[#CFDBD5] border-l border-[#CFDBD5]"
                                     aria-label="Increase quantity"
                                   >
-                                    <FiPlus className="h-3 w-3" />
+                                    +
                                   </button>
                                 </div>
-                                <p className="font-medium text-[#242423]">{formatPrice(item.product?.price || 0)}</p>
+                                
+                                {item.product?.original_price && item.product?.discount_percentage ? (
+                                  <div className="text-right">
+                                    <p className="font-medium text-coffee-700">{formatPrice(item.product?.price || 0)}</p>
+                                    <p className="text-xs line-through text-coffee-400">{formatPrice(item.product.original_price)}</p>
+                                  </div>
+                                ) : (
+                                  <p className="font-medium text-[#242423]">{formatPrice(item.product?.price || 0)}</p>
+                                )}
                               </div>
                             </div>
                           </li>
@@ -293,17 +302,24 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                               )}
                             </div>
                             <div className="mt-2">
-                              <h3 className="text-sm text-[#333533] truncate">
+                              <h3 className="text-sm text-[#333533] truncate mb-1">
                                 {product.name}
                               </h3>
-                              <div className="flex justify-between items-center mt-1">
-                                <p className="text-sm font-medium text-[#242423]">{formatPrice(product.price)}</p>
+                              <div className="flex items-center justify-between">
+                                {product.original_price && product.discount_percentage ? (
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm font-medium text-coffee-700">{formatPrice(product.price)}</p>
+                                    <p className="text-xs line-through text-coffee-400">{formatPrice(product.original_price)}</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm font-medium text-[#242423]">{formatPrice(product.price)}</p>
+                                )}
                                 <button
-                                  className="px-2 py-1 text-xs font-medium rounded border border-[#333533] bg-transparent text-[#333533]"
+                                  className="p-1.5 rounded-full border border-[#333533] bg-transparent text-[#333533] hover:bg-[#CFDBD5] transition-colors flex-shrink-0 flex items-center justify-center"
                                   onClick={() => handleAddRecommended(product)}
                                   aria-label={`Add ${product.name} to cart`}
                                 >
-                                  Add
+                                  <FiPlus className="h-3 w-3" />
                                 </button>
                               </div>
                             </div>
@@ -317,16 +333,16 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                   {items.length > 0 && (
                     <div className="border-t border-[#CFDBD5] px-4 py-5">
                       <div className="flex justify-between font-medium text-base mb-3">
-                        <p>Subtotal:</p>
+                        <p>Subtotal</p>
                         <p>{formatPrice(subtotal)}</p>
                       </div>
                       <p className="text-xs text-[#333533] mb-4">Shipping and taxes calculated at checkout.</p>
                       <Link
                         href="/checkout"
-                        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90"
+                        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 transition-colors"
                         onClick={onClose}
                       >
-                        CHECKOUT
+                        Checkout
                       </Link>
                     </div>
                   )}

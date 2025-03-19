@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiShoppingCart, FiCheck } from 'react-icons/fi';
+import {  FiCheck } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
@@ -61,7 +61,19 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
           
           <div className="mt-6 sm:mt-8 flex flex-col space-y-2 sm:space-y-3">
-            <p className="text-sm sm:text-lg font-medium text-[#242423]">{formatPrice(product.price)}</p>
+            {product.original_price && product.discount_percentage ? (
+              <div className="flex flex-col">
+                <div className="flex items-center gap-3">
+                  <p className="text-sm sm:text-lg font-medium text-coffee-700">{formatPrice(product.price)}</p>
+                  <p className="text-sm line-through text-coffee-400">{formatPrice(product.original_price)}</p>
+                  <span className="bg-coffee-700 text-white text-xs px-2 py-0.5 rounded">
+                    {product.discount_percentage}% OFF
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm sm:text-lg font-medium text-[#242423]">{formatPrice(product.price)}</p>
+            )}
             
             {/* Add to cart button - moved below price */}
             <button
