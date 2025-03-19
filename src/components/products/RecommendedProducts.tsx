@@ -6,7 +6,7 @@ import { useState, useRef } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Product } from '../../types/database.types';
 import { formatPrice } from '../../lib/utils';
-import AddToCartButton from './AddToCartButton';
+import { useCart } from '../../context/CartContext';
 
 interface RecommendedProductsProps {
   currentProductId: string;
@@ -21,6 +21,7 @@ export default function RecommendedProducts({
 }: RecommendedProductsProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const { addItem } = useCart();
   
   // Filter out the current product
   const recommendedProducts = products
@@ -118,7 +119,7 @@ export default function RecommendedProducts({
               key={product.id} 
               className="product-card relative flex-shrink-0 w-[200px] snap-start"
             >
-              <div className="bg-[#E8EDDF]  shadow-sm overflow-hidden h-full flex flex-col transition-transform transform hover:scale-[1.02]">
+              <div className="bg-[#E8EDDF] shadow-sm overflow-hidden h-full flex flex-col transition-opacity hover:opacity-90 relative">
                 <Link href={`/products/${product.id}`} className="block">
                   <div className="aspect-square bg-[#CFDBD5] overflow-hidden">
                     {product.image_url && (
@@ -127,26 +128,31 @@ export default function RecommendedProducts({
                         alt={product.name}
                         width={200}
                         height={200}
-                        className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity"
+                        className="w-full h-full object-center object-cover"
                         unoptimized
                       />
                     )}
                   </div>
-                  
-                  <div className="p-3">
-                    <h3 className="text-md font-medium text-[#242423] truncate">
-                      {product.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-[#333533]">
-                      {formatPrice(product.price)}
-                    </p>
-                    
-                
-                  </div>
                 </Link>
                 
-                <div className="p-3 pt-0 mt-auto">
-                  <AddToCartButton product={product} compact={true} />
+                <div className="p-3 flex flex-col h-full">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-md font-medium text-[#242423] truncate max-w-[120px]">
+                        {product.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-[#333533]">
+                        {formatPrice(product.price)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => addItem(product, 1)}
+                      className="w-8 h-8 rounded-sm bg-[#F5CB5C] text-[#242423] flex items-center justify-center align-middle cursor-pointer hover:bg-[#F5CB5C]/90"
+                      aria-label={`Add ${product.name} to cart`}
+                    >
+                      <span className="text-xl font-medium leading-none flex items-center justify-center">+</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
