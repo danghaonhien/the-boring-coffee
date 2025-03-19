@@ -70,6 +70,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
 
   if (compact) {
     return (
+    
       <button
         type="button"
         className="w-full flex justify-center items-center px-6 py-3 border cursor-pointer border-transparent rounded-md shadow-sm text-base font-medium text-[#242423] bg-[#F5CB5C] hover:bg-[#F5CB5C]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C] transition-colors duration-200"
@@ -90,6 +91,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
           )}
         </span>
       </button>
+ 
     );
   }
 

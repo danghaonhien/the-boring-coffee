@@ -5,6 +5,7 @@ export type Product = {
   description: string;
   price: number;
   image_url: string;
+  image_gallery?: string[]; // Array of additional image URLs
   stock: number;
   category: string;
   rating?: number; // Rating from 0-5

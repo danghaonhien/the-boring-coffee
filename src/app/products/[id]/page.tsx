@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { products } from '../../../data/products';
 import { formatPrice } from '../../../lib/utils';
@@ -6,6 +5,7 @@ import AddToCartButton from '../../../components/products/AddToCartButton';
 import StarRating from '../../../components/products/StarRating';
 import RoastMeter from '../../../components/products/RoastMeter';
 import ProductReviews from '../../../components/products/ProductReviews';
+import ProductImageSlider from '../../../components/products/ProductImageSlider';
 
 type ProductPageProps = {
   params: {
@@ -24,13 +24,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <div className="bg-[#E8EDDF]">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="aspect-w-1 aspect-h-1 bg-[#CFDBD5]  overflow-hidden">
-          <Image
-            src={product.image_url}
-            alt={product.name}
-            width={600}
-            height={600}
-            className="w-full h-full object-center object-cover"
+        <div>
+          <ProductImageSlider 
+            images={product.image_gallery || [product.image_url]} 
+            productName={product.name}
           />
         </div>
         <div>
