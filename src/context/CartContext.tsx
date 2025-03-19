@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CartItem, Product } from '../types/database.types';
 import { generateId } from '../lib/utils';
+import { supabase } from '../lib/supabase';
+import * as cartApi from '../lib/api/cart';
 
 type CartContextType = {
   items: CartItem[];
@@ -12,6 +14,7 @@ type CartContextType = {
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
+  isLoading: boolean;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -26,36 +29,115 @@ export function useCart() {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [user, setUser] = useState<{ id: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load cart from localStorage on initial render
+  // Check for authenticated user on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        try {
-          setItems(JSON.parse(savedCart));
-        } catch (error) {
-          console.error('Failed to parse cart from localStorage:', error);
-        }
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+      setIsLoading(false);
+    };
+
+    checkUser();
+
+    // Subscribe to auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      
+      // If user logs in, fetch their cart
+      if (event === 'SIGNED_IN' && session?.user) {
+        await fetchUserCart(session.user.id);
       }
-    }
+      
+      // If user logs out, just use local storage
+      if (event === 'SIGNED_OUT') {
+        loadCartFromLocalStorage();
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cart', JSON.stringify(items));
+  // Load cart from localStorage
+  const loadCartFromLocalStorage = () => {
+    if (typeof window === 'undefined') return;
+    
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Failed to parse cart from localStorage:', error);
+      }
     }
-  }, [items]);
+  };
+
+  // Save cart to localStorage
+  const saveCartToLocalStorage = (cartItems: CartItem[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  };
+
+  // Fetch cart items from Supabase for authenticated users
+  const fetchUserCart = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const cartItems = await cartApi.fetchCartItems(userId);
+      setItems(cartItems);
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+      loadCartFromLocalStorage();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load cart from localStorage on initial render if not authenticated
+  useEffect(() => {
+    if (!user && typeof window !== 'undefined' && !isLoading) {
+      loadCartFromLocalStorage();
+    }
+  }, [user, isLoading]);
+
+  // Save cart to localStorage for guest users
+  useEffect(() => {
+    if (!user && typeof window !== 'undefined' && !isLoading) {
+      saveCartToLocalStorage(items);
+    }
+  }, [items, user, isLoading]);
   
-  const addItem = (product: Product, quantity: number) => {
+  // Add item to cart
+  const addItem = async (product: Product, quantity: number) => {
     // Validate that quantity is a positive number
     const validQuantity = Math.max(1, quantity);
     
-    // Use a unique transaction ID
+    // Use a unique transaction ID for logging
     const transactionId = generateId();
+    console.log(`[${transactionId}] Adding ${validQuantity} of ${product.name} to cart`);
     
-    // Update items transactionally to prevent duplicate operations
+    if (user) {
+      // For authenticated users, save to Supabase
+      const success = await cartApi.addCartItem(user.id, product.id, validQuantity);
+      
+      if (success) {
+        // Fetch updated cart to ensure UI is in sync with database
+        await fetchUserCart(user.id);
+      } else {
+        // Fallback to local state update if API call fails
+        updateLocalCart(product, validQuantity);
+      }
+    } else {
+      // For guest users, update local state
+      updateLocalCart(product, validQuantity);
+    }
+  };
+
+  // Helper function to update local cart state
+  const updateLocalCart = (product: Product, validQuantity: number) => {
     setItems((prevItems) => {
       // Check if item already exists in cart
       const existingItemIndex = prevItems.findIndex(
@@ -68,47 +150,84 @@ export function CartProvider({ children }: { children: ReactNode }) {
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
           quantity: updatedItems[existingItemIndex].quantity + validQuantity,
-          // Don't add an updated_at property since it's not in the CartItem type
         };
         
-        console.log(`[${transactionId}] Added ${validQuantity} to ${product.name}. New total: ${updatedItems[existingItemIndex].quantity}`);
         return updatedItems;
       } else {
         // Add new item
         const newItem = {
           id: generateId(),
-          user_id: '', // Will be set when user is authenticated
+          user_id: user?.id || '',
           product_id: product.id,
           quantity: validQuantity,
           created_at: new Date().toISOString(),
           product,
         };
         
-        console.log(`[${transactionId}] Added new item: ${validQuantity} of ${product.name}`);
         return [...prevItems, newItem];
       }
     });
   };
 
-  const removeItem = (id: string) => {
-    setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  // Remove item from cart
+  const removeItem = async (id: string) => {
+    if (user) {
+      const success = await cartApi.removeCartItem(id);
+      
+      if (success) {
+        await fetchUserCart(user.id);
+      } else {
+        // Fallback to local state update
+        setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      }
+    } else {
+      setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    }
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  // Update item quantity
+  const updateQuantity = async (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(id);
       return;
     }
 
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
+    if (user) {
+      const success = await cartApi.updateCartItemQuantity(id, quantity);
+      
+      if (success) {
+        await fetchUserCart(user.id);
+      } else {
+        // Fallback to local state update
+        setItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === id ? { ...item, quantity } : item
+          )
+        );
+      }
+    } else {
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === id ? { ...item, quantity } : item
+        )
+      );
+    }
   };
 
-  const clearCart = () => {
-    setItems([]);
+  // Clear cart
+  const clearCart = async () => {
+    if (user) {
+      const success = await cartApi.clearCart(user.id);
+      
+      if (success) {
+        setItems([]);
+      } else {
+        // Fallback to local state update
+        setItems([]);
+      }
+    } else {
+      setItems([]);
+    }
   };
 
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
@@ -128,6 +247,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalItems,
         subtotal,
+        isLoading,
       }}
     >
       {children}

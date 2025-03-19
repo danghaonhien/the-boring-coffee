@@ -17,9 +17,9 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.8,
-    roastLevel: 20, // Light roast
+     roast_level: 20, // Light roast
     story: "Lightmode coffee was born from our founder's desire for a coffee that would energize morning coding sessions without the mid-day crash. Sourced from high-altitude farms in Ethiopia, these beans are carefully selected for their bright profile and distinctive citrus notes. Our light roasting process preserves the beans' natural complexity while developing a clean, crisp flavor profile that awakens the senses – just like switching your IDE to light mode after a long night of coding.",
-    howTo: [
+  how_to: [
       "Start with freshly roasted beans – Lightmode is best used within 2-3 weeks of the roast date",
       "Grind beans to medium-fine consistency, similar to table salt",
       "For pour-over: use 18g coffee to 300ml water at 195-205°F",
@@ -44,9 +44,9 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.9,
-    roastLevel: 85, // Dark roast
+    roast_level: 85, // Dark roast
     story: "Darkmode was created for those intense late-night debugging sessions when you need a coffee as strong as your resolve to fix that stubborn bug. These beans are sourced from the volcanic soils of Sumatra and roasted to a rich, dark profile that brings out deep chocolate and earthy notes. Just as developers switch to dark mode to reduce eye strain during long coding sessions, Darkmode coffee provides a smooth, low-acid experience that's easy on your system even when you're coding until dawn.",
-    howTo: [
+    how_to: [
       "Store beans in an airtight container away from light",
       "Grind beans to coarse consistency right before brewing",
       "For French press: use 30g coffee to 500ml water",
@@ -74,7 +74,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.5,
-    roastLevel: 50, // Medium roast
+     roast_level: 50, // Medium roast
   },
   {
     id: '4',
@@ -92,7 +92,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.7,
-    roastLevel: 65, // Medium-dark roast
+     roast_level: 65, // Medium-dark roast
   },
   {
     id: '5',
@@ -110,7 +110,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 3.9,
-    roastLevel: 75, // Dark roast
+     roast_level: 75, // Dark roast
   },
   {
     id: '6',
@@ -128,7 +128,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.3,
-    roastLevel: 40, // Medium-light roast
+     roast_level: 40, // Medium-light roast
   },
   {
     id: '7',
@@ -233,7 +233,7 @@ export const products: Product[] = [
     stock: 50,
     category: 'coffee',
     rating: 4.5,
-    roastLevel: 60, // Medium-dark roast
+     roast_level: 60, // Medium-dark roast
   },
   {
     id: '13',
@@ -251,7 +251,7 @@ export const products: Product[] = [
     stock: 80,
     category: 'coffee',
     rating: 4.7,
-    roastLevel: 70, // Medium-dark roast
+     roast_level: 70, // Medium-dark roast
   },
   {
     id: '14',
@@ -287,9 +287,9 @@ export const products: Product[] = [
     stock: 30,
     category: 'coffee-kit',
     rating: 4.8,
-    roastLevel: 50, // Medium roast
+     roast_level: 50, // Medium roast
     story: "Our Vietnamese Phin Kit combines tradition with quality. The Phin filter is an iconic brewing method that creates rich, intense coffee with a distinct profile. This starter kit gives you everything you need to begin your Vietnamese coffee journey—a premium Phin filter and your choice of our exceptional coffee blends. Simply add hot water and enjoy the slow, meditative brewing process.",
-    howTo: [
+  how_to: [
       "Place the metal filter chamber on top of a cup or glass",
       "Add 2-3 tablespoons of medium-coarse ground coffee",
       "Insert press filter and press down gently",

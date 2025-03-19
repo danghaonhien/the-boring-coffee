@@ -11,9 +11,9 @@ export type Product = {
   stock: number;
   category: string;
   rating?: number; // Rating from 0-5
-  roastLevel?: number; // 0-100 where 0 is lightest, 100 is darkest
+  roast_level?: number; // 0-100 where 0 is lightest, 100 is darkest
   story?: string; // Product story/origin text
-  howTo?: string[]; // Steps for how to use the product
+  how_to?: string[]; // Steps for how to use the product
 };
 
 export type User = {

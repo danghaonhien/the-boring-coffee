@@ -267,10 +267,10 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                       {displayedProduct.description}
                     </p>
                     
-                    {/* Show RoastMeter only for coffee products */}
-                    {displayedProduct.category === 'coffee' && displayedProduct.roastLevel !== undefined && (
-                      <div className="mt-4">
-                        <RoastMeter roastLevel={displayedProduct.roastLevel} />
+                    {/* Show roast meter for coffee products */}
+                    {displayedProduct.category === 'coffee' && displayedProduct.roast_level !== undefined && (
+                      <div className="mt-2">
+                        <RoastMeter roastLevel={displayedProduct.roast_level} />
                       </div>
                     )}
                   </div>
