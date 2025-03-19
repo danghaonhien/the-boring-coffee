@@ -8,15 +8,15 @@ type ProductGridProps = {
 };
 
 export default function ProductGrid({ products }: ProductGridProps) {
-  // If not enough products to fill a row, let them take more space
-  const gridColsClass = products.length < 3 
-    ? 'grid-cols-1 sm:grid-cols-2' 
-    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
-  
   return (
-    <div className={`grid ${gridColsClass} gap-6 gap-y-12`}>
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
+      {products.map((product, index) => (
+        <div 
+          key={product.id} 
+          className={index === 0 ? "col-span-2 md:col-span-2 lg:col-span-1" : "col-span-1"}
+        >
+          <ProductCard product={product} />
+        </div>
       ))}
     </div>
   );

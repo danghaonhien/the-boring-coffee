@@ -21,9 +21,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="bg-[#E8EDDF]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="aspect-w-1 aspect-h-1 bg-[#CFDBD5] rounded-lg overflow-hidden">
+        <div className="aspect-w-1 aspect-h-1 bg-[#CFDBD5]  overflow-hidden">
           <Image
             src={product.image_url}
             alt={product.name}
@@ -33,7 +34,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           />
         </div>
         <div>
-          <h1 className="text-3xl font-extrabold text-[#242423]">{product.name}</h1>
+          <h1 className="text-3xl sm:text-3xl font-extrabold text-[#242423]">{product.name}</h1>
           
           {/* Star Rating */}
           <div className="mt-2 flex items-center">
@@ -43,10 +44,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </span> */}
           </div>
           
-          <p className="mt-4 text-2xl text-[#242423]">{formatPrice(product.price)}</p>
+          <p className="mt-4 text-xl sm:text-2xl text-[#242423]">{formatPrice(product.price)}</p>
           <div className="mt-6">
-            <h2 className="text-lg font-medium text-[#242423]">Description</h2>
-            <p className="mt-2 text-[#333533]">{product.description}</p>
+            <h2 className="text-lg sm:text-lg font-medium text-[#242423]">Use Case</h2>
+            <p className="mt-2 text-base sm:text-md text-[#333533]">{product.description}</p>
             
             {/* Show RoastMeter only for coffee products */}
             {product.category === 'coffee' && product.roastLevel !== undefined && (
@@ -83,6 +84,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <div className="mt-16 border-t border-[#CFDBD5] pt-10">
         <ProductReviews productId={product.id} productName={product.name} />
       </div>
+    </div>
     </div>
   );
 } 

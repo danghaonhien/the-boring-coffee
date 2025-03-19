@@ -41,20 +41,20 @@ export default function CategoryProductGrid({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b border-[#CFDBD5]">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-5xl font-display font-bold text-[#242423]">{title}</h2>
+        <h2 className="text-3xl sm:text-5xl font-display font-bold text-[#242423]">{title}</h2>
         <Link
           href={viewAllLink}
-          className="text-[#333533] hover:text-[#242423]/80 flex items-center"
+          className="text-sm sm:text-base text-[#333533] hover:text-[#242423]/80 flex items-center"
         >
           View All <FiArrowRight className="ml-1" />
         </Link>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-12">
-        {/* Featured product taking 2 columns */}
-        <div className="md:col-span-2 lg:col-span-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {/* Featured product taking 2 columns wide on all screen sizes */}
+        <div className="col-span-2 md:col-span-2 lg:col-span-2">
           <div className="bg-[#E8EDDF] border border-[#d8e2dc] overflow-hidden h-full flex flex-col">
-            <div className="relative h-80 w-full bg-[#CFDBD5]">
+            <div className="relative aspect-square w-full bg-[#CFDBD5]">
               {featuredProduct.image_url && (
                 <Image
                   src={featuredProduct.image_url}
@@ -64,14 +64,14 @@ export default function CategoryProductGrid({
                 />
               )}
             </div>
-            <div className="p-6 flex-grow flex flex-col">
-              <h3 className="text-xl font-bold text-[#242423]">{featuredProduct.name}</h3>
-              <p className="text-[#333533] mt-2 flex-grow">{featuredProduct.description}</p>
-              <div className="mt-4 flex justify-between items-center">
-                <p className="text-lg font-medium text-[#242423]">${featuredProduct.price.toFixed(2)}</p>
+            <div className="p-4 sm:p-6 flex-grow flex flex-col">
+              <h3 className="text-base sm:text-xl font-bold text-[#242423]">{featuredProduct.name}</h3>
+              <p className="text-xs sm:text-sm text-[#333533] mt-2 flex-grow">{featuredProduct.description}</p>
+              <div className="mt-3 sm:mt-4 flex justify-between items-center">
+                <p className="text-base sm:text-lg font-medium text-[#242423]">${featuredProduct.price.toFixed(2)}</p>
                 <Link
                   href={`/products/${featuredProduct.id}`}
-                  className="text-[#333533] hover:text-[#242423]/80"
+                  className="text-xs sm:text-sm text-[#333533] hover:text-[#242423]/80"
                 >
                   View Details
                 </Link>
@@ -80,18 +80,20 @@ export default function CategoryProductGrid({
           </div>
         </div>
         
-        {/* Rest of the products */}
+        {/* Rest of the products in 2 columns */}
         {displayProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <div key={product.id} className="col-span-1">
+            <ProductCard product={product} />
+          </div>
         ))}
       </div>
       
       {/* Show more button */}
       {hasMoreProducts && !showMore && (
-        <div className="mt-12 text-center ">
+        <div className="mt-8 sm:mt-12 text-center">
           <button
             onClick={() => setShowMore(true)}
-            className="inline-block bg-[#E8EDDF] cursor-pointer border border-[#CFDBD5] rounded-md py-2 px-8 font-medium text-[#242423] hover:bg-[#F5CB5C]"
+            className="inline-block bg-[#E8EDDF] cursor-pointer border border-[#CFDBD5] rounded-md py-1.5 sm:py-2 px-6 sm:px-8 text-xs sm:text-sm font-medium text-[#242423] hover:bg-[#F5CB5C]"
           >
             Show More
           </button>

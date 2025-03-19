@@ -56,7 +56,7 @@ export default function Home() {
 
       {/* Featured products section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b border-[#CFDBD5]">
-        <h2 className="text-5xl font-display font-bold text-[#242423] mb-8">Featured Products</h2>
+        <h2 className="text-3xl sm:text-5xl font-display font-bold text-[#242423] mb-8">Featured Products</h2>
         <ProductGrid products={featuredProducts} />
         <div className="mt-12 text-center">
           <Link

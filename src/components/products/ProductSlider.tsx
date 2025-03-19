@@ -262,7 +262,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                   </div>
                   
                   <div className="mt-8 transition-all duration-300">
-                    <h4 className="font-medium text-[#242423] mb-2">Description</h4>
+                    <h4 className="font-medium text-[#242423] mb-2">Use Case</h4>
                     <p className="text-[#333533] text-sm">
                       {displayedProduct.description}
                     </p>
