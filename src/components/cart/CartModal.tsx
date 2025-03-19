@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, Fragment } from 'react';
+import { useEffect, Fragment, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Dialog, Transition } from '@headlessui/react';
-import { FiX, FiPlus, FiMinus, FiShoppingBag } from 'react-icons/fi';
+import { FiX, FiPlus, FiMinus, FiShoppingBag, FiChevronRight, FiChevronLeft } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { formatPrice } from '../../lib/utils';
 import { Product } from '../../types/database.types';
@@ -17,6 +17,8 @@ type CartModalProps = {
 
 export default function CartModal({ isOpen, onClose, recommendedProducts }: CartModalProps) {
   const { items, removeItem, updateQuantity, subtotal, addItem, totalItems } = useCart();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   // Close cart when pressing escape key
   useEffect(() => {
@@ -39,9 +41,53 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
     };
   }, [isOpen]);
 
+  // Handle manual scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sliderRef.current) {
+        const { scrollLeft } = sliderRef.current;
+        const itemWidth = 184; // Item width + margin (180px + 4px)
+        const newSlide = Math.round(scrollLeft / itemWidth);
+        
+        // Update current slide when scrolling manually
+        if (newSlide !== currentSlide) {
+          setCurrentSlide(newSlide);
+        }
+      }
+    };
+
+    const slider = sliderRef.current;
+    if (slider) {
+      slider.addEventListener('scroll', handleScroll);
+      return () => slider.removeEventListener('scroll', handleScroll);
+    }
+  }, [currentSlide]);
+
+  // Handle next/previous slide navigation
+  const scrollToSlide = (slide: number) => {
+    if (sliderRef.current) {
+      const itemWidth = 184; // Item width + margin
+      const totalSlides = recommendedProducts.length;
+      
+      // Normalize slide index for looping
+      let targetSlide = slide;
+      if (targetSlide < 0) targetSlide = totalSlides - 1;
+      if (targetSlide >= totalSlides) targetSlide = 0;
+      
+      // Scroll to the target slide
+      sliderRef.current.scrollTo({
+        left: targetSlide * itemWidth,
+        behavior: 'smooth'
+      });
+      
+      setCurrentSlide(targetSlide);
+    }
+  };
+
   // Handler for adding a recommended product to cart
   const handleAddRecommended = (product: Product) => {
     addItem(product, 1);
+    // No animation needed, just add the item
   };
 
   return (
@@ -70,7 +116,7 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <div className="w-screen max-w-md">
+              <div className="w-screen max-w-full sm:max-w-md">
                 <div className="h-full flex flex-col bg-[#E8EDDF] shadow-xl overflow-hidden">
                   {/* Header */}
                   <div className="px-4 py-5 bg-[#242423] text-[#E8EDDF] flex items-center justify-between">
@@ -87,29 +133,27 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                     </button>
                   </div>
                   
-                               {/* Free shipping banner */}
+                  {/* Free shipping banner */}
                   {items.length > 0 && (
-                    <div className="bg-[#E8EDDF] px-4 py-3 h-[64px] flex items-center ">
-                      {subtotal >= 5000 ? (
-                        <div className="text-center w-full animate-fadeIn ">
-                          <p className="text-sm text-[#333533] animate-bounce ">
-                            🎉 Woohoo! You have unlocked free shipping!
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="w-full ">
-                          <div className="flex justify-between text-xs text-[#333533] mb-2 ">
+                    <div className="bg-[#E8EDDF] px-4 py-3 h-[64px] flex items-center">
+                      <div className="w-full">
+                        <div className="flex justify-between text-xs text-[#333533] mb-2">
+                          {subtotal >= 5000 ? (
+                            <span className="text-[#242423] font-medium animate-bounce">🎉 Free shipping unlocked!</span>
+                          ) : (
                             <span>Add {formatPrice(5000 - subtotal)} more to get free shipping!</span>
-                            <span>{formatPrice(subtotal)} of {formatPrice(5000)}</span>
-                          </div>
-                          <div className="h-2 w-full bg-[#CFDBD5] rounded-full overflow-hidden ">
-                            <div 
-                              className="h-2 bg-[#F5CB5C] rounded-full transition-all duration-700 ease-out "
-                              style={{ width: `${Math.min(100, (subtotal / 5000) * 100)}%` }}
-                            ></div>
-                          </div>
+                          )}
+                          <span>{subtotal >= 5000 ? formatPrice(5000) : formatPrice(subtotal)} of {formatPrice(5000)}</span>
                         </div>
-                      )}
+                        <div className="h-2 w-full bg-[#CFDBD5] rounded-full overflow-hidden">
+                          <div 
+                            className={`h-2 rounded-full transition-all duration-700 ease-out ${
+                              subtotal >= 5000 ? 'bg-[#4CAF50] animate-pulse' : 'bg-[#F5CB5C]'
+                            }`}
+                            style={{ width: `${Math.min(100, (Math.min(subtotal, 5000) / 5000) * 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -193,20 +237,57 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                     )}
                   </div>
 
-                  {/* Recommended products */}
-                  {items.length > 0 && recommendedProducts.length > 0 && (
+                  {/* Recommended products slider */}
+                  {recommendedProducts.length > 0 && (
                     <div className="px-4 py-4 border-t border-[#CFDBD5]">
-                      <h2 className="text-base font-medium text-[#242423] mb-4">You might also like</h2>
-                      <div className="grid grid-cols-2 gap-4">
-                        {recommendedProducts.slice(0, 2).map((product) => (
-                          <div key={product.id} className="relative group">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-base font-medium text-[#242423]">
+                          You might also like
+                        </h2>
+                        <div className="flex gap-1">
+                          <button 
+                            onClick={() => scrollToSlide(currentSlide - 1)}
+                            className="p-1.5 rounded-full bg-[#CFDBD5] text-[#242423]"
+                            aria-label="Previous product"
+                          >
+                            <FiChevronLeft className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => scrollToSlide(currentSlide + 1)}
+                            className="p-1.5 rounded-full bg-[#CFDBD5] text-[#242423]"
+                            aria-label="Next product"
+                          >
+                            <FiChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div 
+                        id="recommended-slider"
+                        className="flex overflow-x-auto snap-x snap-mandatory pb-4 -mx-2 px-2 scrollbar-hide"
+                        style={{ 
+                          scrollbarWidth: 'none', 
+                          msOverflowStyle: 'none' 
+                        }}
+                        ref={sliderRef}
+                      >
+                        <style jsx global>{`
+                          #recommended-slider::-webkit-scrollbar {
+                            display: none;
+                          }
+                        `}</style>
+                        {recommendedProducts.map((product) => (
+                          <div 
+                            key={product.id} 
+                            className="relative flex-shrink-0 w-[180px] snap-start mr-4 group"
+                          >
                             <div className="w-full aspect-w-1 aspect-h-1 bg-[#CFDBD5] rounded-md overflow-hidden">
                               {product.image_url && (
                                 <Image
                                   src={product.image_url}
                                   alt={product.name}
-                                  width={200}
-                                  height={200}
+                                  width={180}
+                                  height={180}
                                   className="w-full h-full object-center object-cover group-hover:opacity-75"
                                 />
                               )}
@@ -218,7 +299,7 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                               <div className="flex justify-between items-center mt-1">
                                 <p className="text-sm font-medium text-[#242423]">{formatPrice(product.price)}</p>
                                 <button
-                                  className="px-2 py-1 text-xs font-medium rounded bg-[#F5CB5C] text-[#242423] opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="px-2 py-1 text-xs font-medium rounded border border-[#333533] bg-transparent text-[#333533]"
                                   onClick={() => handleAddRecommended(product)}
                                   aria-label={`Add ${product.name} to cart`}
                                 >

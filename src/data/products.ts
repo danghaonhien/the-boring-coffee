@@ -218,12 +218,12 @@ export const products: Product[] = [
     name: 'Query',
     description: 'A structured, methodical medium-dark roast with a smooth, database-friendly finish.',
     price: 1599, // $15.99
-    image_url: '/images/query.jpg',
+    image_url: '/images/lightmode.jpg',
     image_gallery: [
-      '/images/query.jpg',
-      '/images/query-detail-1.jpg',
-      '/images/query-detail-2.jpg',
-      '/images/query-package.jpg'
+      '/images/darkmode.jpg',
+      '/images/darkmode-detail-1.jpg',
+      '/images/darkmode-detail-2.jpg',
+      '/images/darkmode-package.jpg'
     ],
     stock: 80,
     category: 'coffee',
