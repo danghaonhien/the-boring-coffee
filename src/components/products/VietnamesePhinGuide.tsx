@@ -54,8 +54,8 @@ export default function VietnamesePhinGuide() {
           <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className={`${index % 2 === 0 ? 'md:order-1' : 'md:order-2'}`}>
               <div className="bg-[#CFDBD5]/30 rounded-lg p-6">
-                <div className="inline-block bg-[#F5CB5C] text-[#242423] rounded-full h-8 w-8 flex items-center justify-center mb-4">
-                  <span className="font-bold">{index + 1}</span>
+                <div className="inline-flex bg-[#F5CB5C] text-[#242423] rounded-full h-10 w-10 items-center justify-center mb-4 shadow-md">
+                  <span className="font-bold text-lg">{index + 1}</span>
                 </div>
                 <h3 className="text-xl font-semibold text-[#242423] mb-2">{step.title}</h3>
                 <p className="text-[#333533] leading-relaxed">{step.instruction}</p>

@@ -278,8 +278,8 @@ export default function ProductSlider({ products }: ProductSliderProps) {
                 
                 <div className="mt-8">
                   <AddToCartButton  
-                    product={displayedProduct} 
-                    compact={true} 
+                    product={displayedProduct}
+                    compact={true}
                   />
                 </div>
               </>
