@@ -102,7 +102,7 @@ export default function StickyProductFooter({ product }: StickyProductFooterProp
                     <p className="text-xs line-through text-coffee-400">
                       {formatPrice(product.original_price)}
                     </p>
-                    <span className="bg-coffee-700 text-white text-xs px-1.5 py-0.5 rounded">
+                    <span className="bg-coffee-700 text-[#333533] text-xs px-1.5 py-0.5 rounded">
                       {product.discount_percentage}% OFF
                     </span>
                   </div>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import ProductGrid from '../../components/products/ProductGrid';
 import Loading from '../../components/ui/Loading';
 import { Product } from '../../types/database.types';
-import { syncProductsToSupabase, getAllProducts } from '../../lib/api/products';
+import { getAllProducts, getProductsByCategory } from '../../lib/api/products';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -20,38 +20,45 @@ export default async function ProductsPage({
   let connectionError: string | null = null;
   
   try {
-    // First try to ensure data sync
-    await syncProductsToSupabase();
+    console.log('Fetching products for product page');
     
-    // Get products from Supabase
-    products = await getAllProducts();
+    // Get products directly - syncProductsToSupabase is automatically handled by getAllProducts/getProductsByCategory
+    if (selectedCategory) {
+      // If a category is selected, use the more efficient getProductsByCategory
+      products = await getProductsByCategory(selectedCategory);
+      console.log(`Retrieved ${products.length} products in category ${selectedCategory}`);
+    } else {
+      // Otherwise get all products
+      products = await getAllProducts();
+      console.log(`Retrieved ${products.length} total products`);
+    }
     
     if (!products || products.length === 0) {
       throw new Error("No products found in database.");
     }
-    
-    console.log(`Retrieved ${products.length} products for product listing`);
   } catch (error) {
     console.error('Error fetching products:', error);
     // Fallback to local data
-    products = await import('../../data/products').then(m => m.products);
-    connectionError = error instanceof Error ? error.message : "Connection error. Using sample data instead.";
+    const { products: localProducts } = await import('../../data/products');
+    products = selectedCategory 
+      ? localProducts.filter(product => product.category === selectedCategory) 
+      : localProducts;
+      
+    connectionError = error instanceof Error 
+      ? error.message 
+      : "Connection error. Using sample data instead.";
   }
 
-  // Filter products by category if a category is selected
-  const filteredProducts = selectedCategory
-    ? products.filter(product => product.category === selectedCategory)
-    : products;
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="bg-[#E8EDDF]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ">
       <h1 className="text-3xl font-extrabold text-[#242423] mb-8">Our Products</h1>
       
       {connectionError && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded shadow-sm">
-          <p className="font-medium">Supabase Connection Issue</p>
+          <p className="font-medium">Data Connection Notice</p>
           <p className="text-sm">{connectionError}</p>
-          <p className="text-sm mt-2">To fix this, please follow the instructions in the README.md file to properly set up Supabase.</p>
+          <p className="text-sm mt-2">Currently showing sample data. Make sure Supabase is properly configured to see live data.</p>
         </div>
       )}
       
@@ -91,8 +98,15 @@ export default async function ProductsPage({
       </div>
       
       <Suspense fallback={<Loading />}>
-        <ProductGrid products={filteredProducts} />
+        {products.length > 0 ? (
+          <ProductGrid products={products} />
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No products found in this category. Please try another category.</p>
+          </div>
+        )}
       </Suspense>
+    </div>
     </div>
   );
 } 

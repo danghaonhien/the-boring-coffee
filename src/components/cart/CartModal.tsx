@@ -4,7 +4,7 @@ import { useEffect, Fragment, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Dialog, Transition } from '@headlessui/react';
-import { FiX, FiShoppingBag, FiChevronRight, FiChevronLeft, FiPlus } from 'react-icons/fi';
+import { FiX, FiShoppingBag, FiChevronRight, FiChevronLeft, FiPlus, FiLoader } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { formatPrice } from '../../lib/utils';
 import { Product } from '../../types/database.types';
@@ -13,9 +13,10 @@ type CartModalProps = {
   isOpen: boolean;
   onClose: () => void;
   recommendedProducts: Product[];
+  isLoading?: boolean;
 };
 
-export default function CartModal({ isOpen, onClose, recommendedProducts }: CartModalProps) {
+export default function CartModal({ isOpen, onClose, recommendedProducts, isLoading = false }: CartModalProps) {
   const { items, removeItem, updateQuantity, subtotal, addItem, totalItems } = useCart();
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -247,85 +248,93 @@ export default function CartModal({ isOpen, onClose, recommendedProducts }: Cart
                   </div>
 
                   {/* Recommended products slider */}
-                  {recommendedProducts.length > 0 && (
+                  {(recommendedProducts.length > 0 || isLoading) && (
                     <div className="px-4 py-4 border-t border-[#CFDBD5]">
                       <div className="flex justify-between items-center mb-4">
                         <h2 className="text-base font-medium text-[#242423]">
                           You might also like
                         </h2>
-                        <div className="flex gap-1">
-                          <button 
-                            onClick={() => scrollToSlide(currentSlide - 1)}
-                            className="p-1.5 rounded-full bg-[#CFDBD5] text-[#242423]"
-                            aria-label="Previous product"
-                          >
-                            <FiChevronLeft className="h-4 w-4" />
-                          </button>
-                          <button 
-                            onClick={() => scrollToSlide(currentSlide + 1)}
-                            className="p-1.5 rounded-full bg-[#CFDBD5] text-[#242423]"
-                            aria-label="Next product"
-                          >
-                            <FiChevronRight className="h-4 w-4" />
-                          </button>
-                        </div>
+                        {!isLoading && recommendedProducts.length > 0 && (
+                          <div className="flex gap-1">
+                            <button 
+                              onClick={() => scrollToSlide(currentSlide - 1)}
+                              className="p-1.5 rounded-full bg-[#CFDBD5] text-[#242423]"
+                              aria-label="Previous product"
+                            >
+                              <FiChevronLeft className="h-4 w-4" />
+                            </button>
+                            <button 
+                              onClick={() => scrollToSlide(currentSlide + 1)}
+                              className="p-1.5 rounded-full bg-[#CFDBD5] text-[#242423]"
+                              aria-label="Next product"
+                            >
+                              <FiChevronRight className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                       
-                      <div 
-                        id="recommended-slider"
-                        className="flex overflow-x-auto snap-x snap-mandatory pb-4 -mx-2 px-2 scrollbar-hide"
-                        style={{ 
-                          scrollbarWidth: 'none', 
-                          msOverflowStyle: 'none' 
-                        }}
-                        ref={sliderRef}
-                      >
-                        <style jsx global>{`
-                          #recommended-slider::-webkit-scrollbar {
-                            display: none;
-                          }
-                        `}</style>
-                        {recommendedProducts.map((product) => (
-                          <div 
-                            key={product.id} 
-                            className="relative flex-shrink-0 w-[180px] snap-start mr-4 group"
-                          >
-                            <div className="w-full aspect-w-1 aspect-h-1 bg-[#CFDBD5] rounded-md overflow-hidden">
-                              {product.image_url && (
-                                <Image
-                                  src={product.image_url}
-                                  alt={product.name}
-                                  width={180}
-                                  height={180}
-                                  className="w-full h-full object-center object-cover group-hover:opacity-75"
-                                />
-                              )}
-                            </div>
-                            <div className="mt-2">
-                              <h3 className="text-sm text-[#333533] truncate mb-1">
-                                {product.name}
-                              </h3>
-                              <div className="flex items-center justify-between">
-                                {product.original_price && product.discount_percentage ? (
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-sm font-medium text-coffee-700">{formatPrice(product.price)}</p>
-                                    <p className="text-xs line-through text-coffee-400">{formatPrice(product.original_price)}</p>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm font-medium text-[#242423]">{formatPrice(product.price)}</p>
+                      {isLoading ? (
+                        <div className="flex justify-center items-center h-40">
+                          <FiLoader className="h-8 w-8 text-[#333533] animate-spin" />
+                        </div>
+                      ) : (
+                        <div 
+                          id="recommended-slider"
+                          className="flex overflow-x-auto snap-x snap-mandatory pb-4 -mx-2 px-2 scrollbar-hide"
+                          style={{ 
+                            scrollbarWidth: 'none', 
+                            msOverflowStyle: 'none' 
+                          }}
+                          ref={sliderRef}
+                        >
+                          <style jsx global>{`
+                            #recommended-slider::-webkit-scrollbar {
+                              display: none;
+                            }
+                          `}</style>
+                          {recommendedProducts.map((product) => (
+                            <div 
+                              key={product.id} 
+                              className="relative flex-shrink-0 w-[180px] snap-start mr-4 group"
+                            >
+                              <div className="w-full aspect-w-1 aspect-h-1 bg-[#CFDBD5] rounded-md overflow-hidden">
+                                {product.image_url && (
+                                  <Image
+                                    src={product.image_url}
+                                    alt={product.name}
+                                    width={180}
+                                    height={180}
+                                    className="w-full h-full object-center object-cover group-hover:opacity-75"
+                                  />
                                 )}
-                                <button
-                                  className="p-1.5 rounded-full border border-[#333533] bg-transparent text-[#333533] hover:bg-[#CFDBD5] transition-colors flex-shrink-0 flex items-center justify-center"
-                                  onClick={() => handleAddRecommended(product)}
-                                  aria-label={`Add ${product.name} to cart`}
-                                >
-                                  <FiPlus className="h-3 w-3" />
-                                </button>
+                              </div>
+                              <div className="mt-2">
+                                <h3 className="text-sm text-[#333533] truncate mb-1">
+                                  {product.name}
+                                </h3>
+                                <div className="flex items-center justify-between">
+                                  {product.original_price && product.discount_percentage ? (
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-sm font-medium text-coffee-700">{formatPrice(product.price)}</p>
+                                      <p className="text-xs line-through text-coffee-400">{formatPrice(product.original_price)}</p>
+                                    </div>
+                                  ) : (
+                                    <p className="text-sm font-medium text-[#242423]">{formatPrice(product.price)}</p>
+                                  )}
+                                  <button
+                                    className="p-1.5 rounded-full border border-[#333533] bg-transparent text-[#333533] hover:bg-[#CFDBD5] transition-colors flex-shrink-0 flex items-center justify-center"
+                                    onClick={() => handleAddRecommended(product)}
+                                    aria-label={`Add ${product.name} to cart`}
+                                  >
+                                    <FiPlus className="h-3 w-3" />
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 

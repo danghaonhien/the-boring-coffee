@@ -4,12 +4,14 @@ export type Product = {
   name: string;
   description: string;
   price: number;
-  original_price?: number; // Price before discount
-  discount_percentage?: number; // Percentage discount (e.g., 15 for 15% off)
   image_url: string;
-  image_gallery?: string[]; // Array of additional image URLs
   stock: number;
   category: string;
+  
+  // Optional fields
+  original_price?: number; // Price before discount
+  discount_percentage?: number; // Percentage discount (e.g., 15 for 15% off)
+  image_gallery?: string[]; // Array of additional image URLs
   rating?: number; // Rating from 0-5
   roast_level?: number; // 0-100 where 0 is lightest, 100 is darkest
   story?: string; // Product story/origin text
@@ -33,10 +35,17 @@ export type CartItem = {
 
 export type Order = {
   id: string;
-  user_id: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  user_id: string | null;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  subtotal: number;
+  tax: number;
+  shipping: number;
   total: number;
+  customer_name: string;
+  customer_email: string;
+  shipping_address: string;
   created_at: string;
+  updated_at: string;
   payment_intent_id?: string;
 };
 

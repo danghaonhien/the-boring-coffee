@@ -77,7 +77,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="mt-4 flex items-center gap-3">
                 <p className="text-xl sm:text-2xl font-medium text-coffee-700">{formatPrice(normalizedProduct.price)}</p>
                 <p className="text-lg line-through text-coffee-400">{formatPrice(normalizedProduct.original_price)}</p>
-                <span className="bg-coffee-700 text-white text-sm px-2 py-0.5 rounded">
+                <span className="bg-coffee-700 text-[#333533] text-sm px-2 py-0.5 rounded">
                   {normalizedProduct.discount_percentage}% OFF
                 </span>
               </div>

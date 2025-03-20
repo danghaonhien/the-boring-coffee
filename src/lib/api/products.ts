@@ -7,6 +7,47 @@ import { products as localProducts } from '../../data/products';
 let supabaseProductsCache: Product[] | null = null;
 let supabaseConnectionAttempted = false;
 
+/**
+ * Validates the database schema to ensure it has all required columns
+ */
+async function validateProductSchema(): Promise<boolean> {
+  try {
+    console.log('Validating product schema...');
+    
+    // Fetch schema information for the products table
+    const { error: schemaError } = await supabase
+      .from('products')
+      .select('id')
+      .limit(1);
+
+    if (schemaError) {
+      console.error('Schema validation error:', schemaError);
+      
+      // Check if the error is about missing columns
+      if (schemaError.message.includes('column') && schemaError.message.includes('does not exist')) {
+        console.error('Database schema appears to be missing required columns. Please run the database migration script.');
+        return false;
+      }
+      
+      // Check if we have permission issues
+      if (schemaError.code === '42501' || schemaError.message.includes('permission denied')) {
+        console.error('Permission denied when accessing the products table. Check RLS policies.');
+        return false;
+      }
+      
+      // For other errors, we'll assume the schema might be okay but there's a different issue
+      console.warn('Schema validation encountered an error, but it may not be schema-related:', schemaError);
+      return true;
+    }
+    
+    console.log('Product schema validation successful');
+    return true;
+  } catch (error) {
+    console.error('Error validating product schema:', error);
+    return false;
+  }
+}
+
 export async function checkSupabaseConnection(): Promise<boolean> {
   // If we've already successfully connected, return true
   if (supabaseProductsCache !== null && supabaseProductsCache.length > 0) {
@@ -66,68 +107,151 @@ export async function syncProductsToSupabase(): Promise<boolean> {
   try {
     console.log('Syncing local products to Supabase...');
     
+    // Validate the schema first
+    const isSchemaValid = await validateProductSchema();
+    if (!isSchemaValid) {
+      console.error('Skipping product sync due to schema validation failure');
+      return false;
+    }
+    
     // Format products for Supabase
     const formattedProducts = localProducts.map(product => {
-      // Create a properly typed object
-      const formattedProduct: Product = {
-        ...product,
-        created_at: product.created_at || new Date().toISOString(),
-        image_gallery: product.image_gallery || [],
-        how_to: product.how_to || []
-      };
-      
-      // Explicitly handle roast_level
-      if (typeof product.roast_level === 'string') {
-        formattedProduct.roast_level = parseInt(product.roast_level, 10);
-      } else if (product.roast_level === undefined && product.category === 'coffee') {
-        // Set default roast level based on description if it's a coffee product
-        if (product.description.toLowerCase().includes('light')) {
-          formattedProduct.roast_level = 20;
-        } else if (product.description.toLowerCase().includes('medium-light')) {
-          formattedProduct.roast_level = 40;
-        } else if (product.description.toLowerCase().includes('medium-dark')) {
-          formattedProduct.roast_level = 70;
-        } else if (product.description.toLowerCase().includes('medium')) {
-          formattedProduct.roast_level = 50;
-        } else if (product.description.toLowerCase().includes('dark')) {
-          formattedProduct.roast_level = 80;
+      try {
+        // Create a properly typed object with defaults for required fields
+        const formattedProduct: Product = {
+          id: product.id,
+          created_at: product.created_at || new Date().toISOString(),
+          name: product.name || 'Unnamed Product',
+          description: product.description || 'No description available',
+          price: typeof product.price === 'number' ? product.price : 0,
+          image_url: product.image_url || '/images/default-product.jpg',
+          stock: typeof product.stock === 'number' ? product.stock : 10,
+          category: product.category || 'coffee',
+          image_gallery: product.image_gallery || [],
+          how_to: product.how_to || []
+        };
+        
+        // Explicitly handle roast_level
+        if (typeof product.roast_level === 'string') {
+          formattedProduct.roast_level = parseInt(product.roast_level, 10) || 50;
+        } else if (product.roast_level === undefined && product.category === 'coffee') {
+          // Set default roast level based on description if it's a coffee product
+          if (product.description?.toLowerCase().includes('light')) {
+            formattedProduct.roast_level = 20;
+          } else if (product.description?.toLowerCase().includes('medium-light')) {
+            formattedProduct.roast_level = 40;
+          } else if (product.description?.toLowerCase().includes('medium-dark')) {
+            formattedProduct.roast_level = 70;
+          } else if (product.description?.toLowerCase().includes('medium')) {
+            formattedProduct.roast_level = 50;
+          } else if (product.description?.toLowerCase().includes('dark')) {
+            formattedProduct.roast_level = 80;
+          } else {
+            formattedProduct.roast_level = 50; // Default to medium roast
+          }
+        } else if (typeof product.roast_level === 'number') {
+          formattedProduct.roast_level = product.roast_level;
         } else {
-          formattedProduct.roast_level = 50; // Default to medium roast
+          formattedProduct.roast_level = 50; // Default
         }
-      } else {
-        formattedProduct.roast_level = product.roast_level;
+        
+        // Handle any legacy data structure with different property names
+        const legacyProduct = product as Record<string, unknown>;
+        if (legacyProduct.roastLevel !== undefined) {
+          const legacyRoastLevel = legacyProduct.roastLevel;
+          formattedProduct.roast_level = typeof legacyRoastLevel === 'number' 
+            ? legacyRoastLevel 
+            : typeof legacyRoastLevel === 'string' 
+              ? parseInt(legacyRoastLevel, 10) || 50
+              : 50;
+        }
+        
+        if (legacyProduct.howTo !== undefined && Array.isArray(legacyProduct.howTo)) {
+          formattedProduct.how_to = legacyProduct.howTo as string[];
+        }
+        
+        // Clean up any null values that should be arrays
+        if (!formattedProduct.image_gallery) formattedProduct.image_gallery = [];
+        if (!formattedProduct.how_to) formattedProduct.how_to = [];
+        
+        // Validate that all required fields are present
+        const requiredFields = ['id', 'name', 'price', 'image_url', 'category'];
+        const missingFields = requiredFields.filter(field => !formattedProduct[field as keyof Product]);
+        
+        if (missingFields.length > 0) {
+          console.warn(`Product ${product.id} is missing required fields: ${missingFields.join(', ')}. Using defaults.`);
+        }
+        
+        return formattedProduct;
+      } catch (formatError) {
+        console.error(`Error formatting product ${product.id}:`, formatError);
+        // Return null for this product so we can filter it out
+        return null;
       }
-      
-      // Handle any legacy data structure with different property names
-      const legacyProduct = product as Record<string, unknown>;
-      if (legacyProduct.roastLevel !== undefined) {
-        formattedProduct.roast_level = Number(legacyProduct.roastLevel);
-      }
-      if (legacyProduct.howTo !== undefined) {
-        formattedProduct.how_to = legacyProduct.howTo as string[];
-      }
-      
-      return formattedProduct;
-    });
+    }).filter(product => product !== null) as Product[]; // Filter out any null products
+    
+    if (formattedProducts.length === 0) {
+      console.error('No valid products found to sync');
+      return false;
+    }
     
     // Insert products in batches to avoid request size limits
-    const batchSize = 5;
+    const batchSize = 3; // Smaller batch size for better error isolation
     let successCount = 0;
     
     for (let i = 0; i < formattedProducts.length; i += batchSize) {
       const batch = formattedProducts.slice(i, i + batchSize);
-      console.log(`Syncing batch ${Math.floor(i/batchSize) + 1} (${batch.length} products)...`);
+      const batchNumber = Math.floor(i/batchSize) + 1;
       
-      const { error: insertError } = await supabase
-        .from('products')
-        .upsert(batch, { onConflict: 'id' });
+      console.log(`Syncing batch ${batchNumber} (${batch.length} products)...`);
+      
+      try {
+        // Log the actual data being sent for debugging
+        console.log(`Batch ${batchNumber} data:`, JSON.stringify(batch.map(p => ({ id: p.id, name: p.name }))));
         
-      if (insertError) {
-        console.error(`Error syncing batch ${Math.floor(i/batchSize) + 1}:`, insertError);
-      } else {
-        console.log(`Successfully synced batch ${Math.floor(i/batchSize) + 1}`);
-        successCount += batch.length;
+        const { error: insertError } = await supabase
+          .from('products')
+          .upsert(batch, { 
+            onConflict: 'id',
+            ignoreDuplicates: false // This ensures we update existing records
+          });
+          
+        if (insertError) {
+          console.error(`Error syncing batch ${batchNumber}:`, JSON.stringify({
+            message: insertError.message,
+            details: insertError.details,
+            hint: insertError.hint,
+            code: insertError.code
+          }));
+          
+          // Try to handle common errors
+          if (insertError.code === '23505') { // Duplicate key violation
+            console.log(`Batch ${batchNumber} has duplicate keys, trying individual inserts`);
+            
+            // Try inserting products one by one
+            for (const product of batch) {
+              const { error: individualError } = await supabase
+                .from('products')
+                .upsert([product], { onConflict: 'id' });
+                
+              if (!individualError) {
+                console.log(`Successfully synced product ${product.id}`);
+                successCount++;
+              } else {
+                console.error(`Error syncing product ${product.id}:`, individualError);
+              }
+            }
+          }
+        } else {
+          console.log(`Successfully synced batch ${batchNumber}`);
+          successCount += batch.length;
+        }
+      } catch (batchError) {
+        console.error(`Error processing batch ${batchNumber}:`, batchError);
       }
+      
+      // Add a small delay between batches to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
     
     console.log(`Completed syncing ${successCount} of ${formattedProducts.length} products to Supabase`);

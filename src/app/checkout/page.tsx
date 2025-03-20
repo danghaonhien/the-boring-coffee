@@ -4,11 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
 import { formatPrice } from '../../lib/utils';
+import { createOrder } from '../../lib/api/orders';
+import { supabase } from '../../lib/supabase';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -34,19 +37,59 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    // Here you would normally process the payment with Stripe
-    // For this demo, we'll just simulate a successful payment
-    setTimeout(() => {
-      clearCart();
-      router.push('/checkout/success');
-    }, 1500);
+    try {
+      // Get the current user (if logged in)
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Create order in Supabase
+      const { success, orderId, error: orderError } = await createOrder(
+        user?.id || null,
+        items,
+        {
+          name: formData.name,
+          email: formData.email,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+        }
+      );
+
+      if (success && orderId) {
+        // Clear the cart
+        await clearCart();
+        
+        // Redirect to success page
+        router.push(`/checkout/success?orderId=${orderId}`);
+      } else {
+        setError(orderError || 'Failed to create order. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      console.error('Error during checkout:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setIsSubmitting(false);
+    }
   };
+
+  const taxAmount = subtotal * 0.1; // 10% tax
+  const shippingAmount = subtotal >= 5000 ? 0 : 500; // Free shipping over $50
+  const totalAmount = subtotal + taxAmount + shippingAmount;
 
   return (
     <div className="bg-[#E8EDDF] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h1 className="text-3xl font-extrabold text-[#242423] mb-8">Checkout</h1>
+        
+        {error && (
+          <div className="mb-8 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+            <p className="font-medium">Error</p>
+            <p>{error}</p>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <div className="bg-[#E8EDDF] rounded-lg shadow-sm p-6 border border-[#CFDBD5]">
@@ -222,23 +265,26 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-[#CFDBD5] mt-4 pt-4 space-y-2">
+              
+              <div className="border-t border-[#CFDBD5] pt-4 mt-4 space-y-2">
                 <div className="flex justify-between">
                   <p className="text-sm text-[#333533]">Subtotal</p>
                   <p className="text-sm font-medium text-[#242423]">{formatPrice(subtotal)}</p>
                 </div>
                 <div className="flex justify-between">
                   <p className="text-sm text-[#333533]">Shipping</p>
-                  <p className="text-sm font-medium text-[#242423]">Free</p>
+                  <p className="text-sm font-medium text-[#242423]">
+                    {shippingAmount === 0 ? 'Free' : formatPrice(shippingAmount)}
+                  </p>
                 </div>
                 <div className="flex justify-between">
-                  <p className="text-sm text-[#333533]">Tax</p>
-                  <p className="text-sm font-medium text-[#242423]">{formatPrice(subtotal * 0.1)}</p>
+                  <p className="text-sm text-[#333533]">Tax (10%)</p>
+                  <p className="text-sm font-medium text-[#242423]">{formatPrice(taxAmount)}</p>
                 </div>
                 <div className="flex justify-between pt-2">
                   <p className="text-base font-medium text-[#242423]">Total</p>
                   <p className="text-base font-medium text-[#242423]">
-                    {formatPrice(subtotal + subtotal * 0.1)}
+                    {formatPrice(totalAmount)}
                   </p>
                 </div>
               </div>
