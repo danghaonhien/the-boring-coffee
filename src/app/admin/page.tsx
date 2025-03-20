@@ -598,13 +598,15 @@ export default function AdminPage() {
             {showDropdown && (
               <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xs shadow-lg z-300">
                 <div className="p-4">
-                  <div className="flex mb-4 space-x-2">
+                  <div className="flex mb-4 space-x-0">
                     <button
                       onClick={() => setActiveCategory('All')}
                       className={`px-4 py-2 h-8 text-sm rounded-xs ${activeCategory === 'All' ? 'bg-[#333533] text-[#CFDBD5]' : 'bg-gray-200 text-gray-700'} transition duration-300 ease-in-out transform hover:scale-105`}
                     >
                       All
                     </button>
+
+                    
                     {categories.map(category => (
                       <button
                         key={category}
@@ -614,6 +616,18 @@ export default function AdminPage() {
                         {category}
                       </button>
                     ))}
+                  </div>
+                  <div className="flex mb-4 justify-between">
+                  
+                  <div className="text-sm text-gray-600 mb-2">
+                    {`${selectedProducts.size}/${products.length} selected`}
+                  </div>
+                  <button
+                    onClick={() => setSelectedProducts(new Set())}
+                    className="text-sm text-[#333533] font-light hover:underline mb-2 cursor-pointer"
+                  >
+                    Clear All
+                  </button>
                   </div>
                   <input
                     type="text"
@@ -641,7 +655,10 @@ export default function AdminPage() {
                   <button
                     onClick={() => {
                       setShowDropdown(false);
-                      setMessage(`Selected ${selectedProducts.size} products for import.`);
+                      const selectedProductNames = [...selectedProducts].map(id => 
+                        products.find(p => p.id === id)?.name || id
+                      ).join(", ");
+                      setMessage(`${selectedProducts.size} products imported: ${selectedProductNames}`);
                     }}
                     className={`w-full mt-4 px-4 py-3 rounded ${selectedProducts.size === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#F5CB5C] text-[#333533] hover:bg-[#F5CB5C]'} transition duration-300 ease-in-out transform hover:scale-105`}
                     disabled={selectedProducts.size === 0}
@@ -655,8 +672,17 @@ export default function AdminPage() {
         </h2>
         
         {message && (
-          <div className="mb-4 p-3 bg-blue-100 border border-blue-200 rounded">
-            {message}
+          <div className="mb-4 p-3 bg-blue-100 border border-blue-200 rounded flex justify-between items-center">
+            <span>{message}</span>
+            <button 
+              onClick={() => setMessage('')} 
+              className="text-gray-500 hover:text-gray-700"
+              aria-label="Close message"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
         )}
         
@@ -753,14 +779,19 @@ export default function AdminPage() {
               <thead>
                 <tr>
                   <th className="px-4 py-2 border">
-                    <input
-                      type="checkbox"
-                      checked={selectedProducts.size === dbProducts.length}
-                      onChange={toggleSelectAll}
-                      className="mr-2"
-                      title="Select all products"
-                    />
-                    Name {sortOption.field === 'name' && (sortOption.direction === 'asc' ? '▲' : '▼')}
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.size === sortedProducts.length && sortedProducts.length > 0}
+                        onChange={toggleSelectAll}
+                        className="mr-2"
+                        title="Select all products"
+                        aria-label="Select all products"
+                      />
+                      <span className="cursor-pointer" onClick={() => handleSortChange('name')}>
+                        Name {sortOption.field === 'name' && (sortOption.direction === 'asc' ? '▲' : '▼')}
+                      </span>
+                    </div>
                   </th>
                   <th className="px-4 py-2 border cursor-pointer hover:bg-gray-100" onClick={() => handleSortChange('category')}>
                     Category {sortOption.field === 'category' && (sortOption.direction === 'asc' ? '▲' : '▼')}
@@ -780,15 +811,20 @@ export default function AdminPage() {
               <tbody>
                 {sortedProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 border">
-                      <input
-                        type="checkbox"
-                        checked={selectedProducts.has(product.id)}
-                        onChange={() => toggleProductSelection(product.id)}
-                        className="mr-2 hidden group-hover:block"
-                        title="Select product for import"
-                      />
-                      {product.name}
+                    <td className="px-4 py-2 border group">
+                      <div className="flex items-center">
+                        <div className="w-5 mr-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedProducts.has(product.id)}
+                            onChange={() => toggleProductSelection(product.id)}
+                            className={`${selectedProducts.has(product.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+                            title={`Select ${product.name}`}
+                            aria-label={`Select ${product.name}`}
+                          />
+                        </div>
+                        <span>{product.name}</span>
+                      </div>
                     </td>
                     <td className="px-4 py-2 border">{product.category}</td>
                     <td className="px-4 py-2 border">${(product.price / 100).toFixed(2)}</td>
@@ -844,13 +880,32 @@ export default function AdminPage() {
                       </div>
                     </td>
                     <td className="px-4 py-2 border">
-                      <div className="flex items-center">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            const newStock = prompt(`Update stock for ${product.name}:`, product.stock.toString());
+                            if (newStock !== null) {
+                              const stockValue = parseInt(newStock);
+                              if (!isNaN(stockValue) && stockValue >= 0) {
+                                updateStock(product.id, stockValue);
+                              }
+                            }
+                          }}
+                          className="p-2 rounded text-blue-600 hover:bg-blue-100 transition-colors"
+                          title="Update product"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
                         <button
                           onClick={() => deleteProduct(product.id, product.name)}
-                          className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600 min-w-[80px]"
+                          className={`p-2 rounded ${deleteConfirm === product.id ? 'text-white bg-red-500' : 'text-red-600 hover:bg-red-100'} transition-colors`}
                           title="Delete product"
                         >
-                          {deleteConfirm === product.id ? 'Confirm' : 'Delete'}
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
                         </button>
                       </div>
                     </td>
