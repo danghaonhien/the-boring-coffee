@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Layout from "../components/layout/Layout";
 import { CartProvider } from "../context/CartContext";
+import ClientLayout from "../components/layout/ClientLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,13 +24,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // We use ClientLayout to conditionally apply the main layout based on the route
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <CartProvider>
-          <Layout>{children}</Layout>
+          <ClientLayout>{children}</ClientLayout>
         </CartProvider>
       </body>
     </html>
