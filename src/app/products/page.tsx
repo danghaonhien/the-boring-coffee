@@ -3,7 +3,7 @@ import Link from 'next/link';
 import ProductGrid from '../../components/products/ProductGrid';
 import Loading from '../../components/ui/Loading';
 import { Product } from '../../types/database.types';
-import { supabase } from '../../lib/supabase';
+import { syncProductsToSupabase, getAllProducts } from '../../lib/api/products';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -20,71 +20,17 @@ export default async function ProductsPage({
   let connectionError: string | null = null;
   
   try {
-    // First try to fetch products directly
-    let { data, error } = await supabase.from('products').select('*');
+    // First try to ensure data sync
+    await syncProductsToSupabase();
     
-    // If that fails with an RLS error, try the RPC function
-    if (error && error.code === '42501') {
-      console.log('Trying alternative method to fetch products...');
-      const { data: rpcData, error: rpcError } = await supabase.rpc('get_all_products');
-      
-      if (rpcError) {
-        throw new Error(`Database access error: ${rpcError.message}`);
-      }
-      
-      if (rpcData && rpcData.length > 0) {
-        data = rpcData;
-        error = null;
-      }
+    // Get products from Supabase
+    products = await getAllProducts();
+    
+    if (!products || products.length === 0) {
+      throw new Error("No products found in database.");
     }
     
-    // If we still have an error, throw it
-    if (error) {
-      throw new Error(`Database error: ${error.message} (code: ${error.code})`);
-    }
-    
-    // If we have no data, use local data as fallback
-    if (!data || data.length === 0) {
-      console.log('No products found in Supabase, falling back to local data');
-      const localData = await import('../../data/products').then(m => m.products);
-      
-      // Fix: Process local products to ensure roast_level is correctly set
-      products = localData.map(product => {
-        // Create a properly typed product
-        const formattedProduct = { ...product };
-        
-        // Handle possible string values
-        if (typeof formattedProduct.roast_level === 'string') {
-          formattedProduct.roast_level = parseInt(formattedProduct.roast_level, 10);
-        }
-        
-        // Set default roast_level for coffee products if missing
-        if (formattedProduct.category === 'coffee' && 
-            (formattedProduct.roast_level === undefined || isNaN(formattedProduct.roast_level))) {
-          // Determine roast level from description
-          if (formattedProduct.description.toLowerCase().includes('light')) {
-            formattedProduct.roast_level = 20;
-          } else if (formattedProduct.description.toLowerCase().includes('medium-light')) {
-            formattedProduct.roast_level = 40;
-          } else if (formattedProduct.description.toLowerCase().includes('medium-dark')) {
-            formattedProduct.roast_level = 70;
-          } else if (formattedProduct.description.toLowerCase().includes('medium')) {
-            formattedProduct.roast_level = 50;
-          } else if (formattedProduct.description.toLowerCase().includes('dark')) {
-            formattedProduct.roast_level = 80;
-          } else {
-            formattedProduct.roast_level = 50; // Default to medium roast
-          }
-        }
-        
-        return formattedProduct;
-      });
-      
-      connectionError = "No products found in database. Using sample data instead.";
-    } else {
-      products = data;
-      console.log(`Retrieved ${products.length} products from Supabase`);
-    }
+    console.log(`Retrieved ${products.length} products for product listing`);
   } catch (error) {
     console.error('Error fetching products:', error);
     // Fallback to local data

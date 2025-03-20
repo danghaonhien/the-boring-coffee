@@ -94,8 +94,24 @@ export default function AdminPage() {
   // Add state to track loading status for discount codes
   const [loadingDiscountCodes, setLoadingDiscountCodes] = useState(false);
   
+  // Properly initialize the admin page with Supabase data
   useEffect(() => {
-    checkProducts();
+    const initializeAdminPage = async () => {
+      try {
+        // Try to sync products to Supabase first (in case there are new local products)
+        const { syncProductsToSupabase } = await import('../../lib/api/products');
+        await syncProductsToSupabase();
+        
+        // Then check database connection/products
+        await debugDatabaseConnection();
+        await checkProducts();
+      } catch (error) {
+        console.error('Error initializing admin page:', error);
+        setMessage('Error initializing admin page. Please check console for details.');
+      }
+    };
+    
+    initializeAdminPage();
   }, []);
   
   // Update categories whenever products are loaded
@@ -1443,5 +1459,3 @@ export default function AdminPage() {
     </div>
   );
 } 
-
-

@@ -15,15 +15,7 @@ type ProductSliderProps = {
 };
 
 export default function ProductSlider({ products }: ProductSliderProps) {
-  // Manually select the products for the slider positions
-  // Find products
-  const lightProduct = products.find(p => p.name.toLowerCase() === 'lightmode') || products[0];
-  const darkProduct = products.find(p => p.name.toLowerCase() === 'darkmode') || products[products.length > 1 ? 1 : 0];
-  
-  // Left side is Lightmode, right side is Darkmode
-  const leftProduct = lightProduct;
-  const rightProduct = darkProduct;
-  
+  // React hooks must be called at the top level, before any conditional rendering
   const [isDragging, setIsDragging] = useState(false);
   // Start at 50% position showing both products equally
   const [dragPosition, setDragPosition] = useState(50); 
@@ -32,6 +24,27 @@ export default function ProductSlider({ products }: ProductSliderProps) {
   
   // Track if user has interacted with the slider
   const [hasInteracted, setHasInteracted] = useState(false);
+  
+  // Validate products array 
+  const validProducts = Array.isArray(products) ? products.filter(p => p && typeof p === 'object') : [];
+  
+  // Check if we have enough products to work with
+  if (validProducts.length === 0) {
+    return (
+      <div className="bg-[#E8EDDF] border border-[#d8e2dc] p-6 text-center">
+        <p className="text-[#333533]">No products available to display.</p>
+      </div>
+    );
+  }
+  
+  // Safely find products with fallbacks
+  const lightProduct = validProducts.find(p => p?.name?.toLowerCase() === 'lightmode') || validProducts[0];
+  const darkProduct = validProducts.find(p => p?.name?.toLowerCase() === 'darkmode') || 
+                     (validProducts.length > 1 ? validProducts[1] : validProducts[0]);
+  
+  // Left side is Lightmode, right side is Darkmode
+  const leftProduct = lightProduct;
+  const rightProduct = darkProduct;
   
   // Check if we're near the center position (45-55%) and user hasn't interacted yet
   const showCallToAction = dragPosition >= 45 && dragPosition <= 55 && !hasInteracted;
@@ -115,19 +128,23 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               >
                 {/* Product Image */}
                 <div className="w-full h-full relative">
-                  {rightProduct.image_url && (
+                  {rightProduct && rightProduct.image_url ? (
                     <Image 
                       src={rightProduct.image_url} 
-                      alt={rightProduct.name}
+                      alt={rightProduct.name || 'Product image'}
                       fill
                       className="object-cover"
                     />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                      <span className="text-gray-500">Image not available</span>
+                    </div>
                   )}
                   
                   {/* Product name overlay - simplified */}
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#242423] to-transparent py-4 px-4">
                     <div className="text-2xl font-bold text-[#E8EDDF] text-right">
-                      {rightProduct.name}
+                      {rightProduct?.name || 'Product Name'}
                     </div>
                   </div>
                 </div>
@@ -143,19 +160,23 @@ export default function ProductSlider({ products }: ProductSliderProps) {
               >
                 {/* Product Image */}
                 <div className="w-full h-full relative">
-                  {leftProduct.image_url && (
+                  {leftProduct && leftProduct.image_url ? (
                     <Image 
                       src={leftProduct.image_url} 
-                      alt={leftProduct.name}
+                      alt={leftProduct.name || 'Product image'}
                       fill
                       className="object-cover"
                     />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                      <span className="text-gray-500">Image not available</span>
+                    </div>
                   )}
                   
                   {/* Product name overlay - simplified */}
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#242423] to-transparent py-4 px-4">
                     <div className="text-2xl font-bold text-[#E8EDDF]">
-                      {leftProduct.name}
+                      {leftProduct?.name || 'Product Name'}
                     </div>
                   </div>
                 </div>
