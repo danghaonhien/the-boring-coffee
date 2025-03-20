@@ -54,7 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-xs sm:text-sm text-[#333533] line-clamp-2">{product.description}</p>
           
           {/* Show RoastMeter only for coffee products */}
-          {product.category === 'coffee' && product.roast_level !== undefined && (
+          {product.category === 'coffee' && (
             <div className="mt-3 sm:mt-4">
               <RoastMeter roastLevel={product.roast_level} showLabels={true} />
             </div>

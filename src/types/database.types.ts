@@ -48,4 +48,15 @@ export type OrderItem = {
   price: number;
   created_at: string;
   product?: Product;
+};
+
+export type DiscountCode = {
+  id: string;
+  code: string;
+  percentage: number;
+  applicable_items: 'single' | 'multiple' | 'all';
+  items?: string[]; // Array of product IDs if applicable_items is 'multiple'
+  active: boolean;
+  created_at: string;
+  expires_at?: string; // Optional expiration date
 }; 

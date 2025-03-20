@@ -46,7 +46,40 @@ export default async function ProductsPage({
     // If we have no data, use local data as fallback
     if (!data || data.length === 0) {
       console.log('No products found in Supabase, falling back to local data');
-      products = await import('../../data/products').then(m => m.products);
+      const localData = await import('../../data/products').then(m => m.products);
+      
+      // Fix: Process local products to ensure roast_level is correctly set
+      products = localData.map(product => {
+        // Create a properly typed product
+        const formattedProduct = { ...product };
+        
+        // Handle possible string values
+        if (typeof formattedProduct.roast_level === 'string') {
+          formattedProduct.roast_level = parseInt(formattedProduct.roast_level, 10);
+        }
+        
+        // Set default roast_level for coffee products if missing
+        if (formattedProduct.category === 'coffee' && 
+            (formattedProduct.roast_level === undefined || isNaN(formattedProduct.roast_level))) {
+          // Determine roast level from description
+          if (formattedProduct.description.toLowerCase().includes('light')) {
+            formattedProduct.roast_level = 20;
+          } else if (formattedProduct.description.toLowerCase().includes('medium-light')) {
+            formattedProduct.roast_level = 40;
+          } else if (formattedProduct.description.toLowerCase().includes('medium-dark')) {
+            formattedProduct.roast_level = 70;
+          } else if (formattedProduct.description.toLowerCase().includes('medium')) {
+            formattedProduct.roast_level = 50;
+          } else if (formattedProduct.description.toLowerCase().includes('dark')) {
+            formattedProduct.roast_level = 80;
+          } else {
+            formattedProduct.roast_level = 50; // Default to medium roast
+          }
+        }
+        
+        return formattedProduct;
+      });
+      
       connectionError = "No products found in database. Using sample data instead.";
     } else {
       products = data;

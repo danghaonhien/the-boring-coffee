@@ -23,6 +23,17 @@ type ProductWithSales = Product & {
   salesRank?: 'top' | 'low' | null;
 };
 
+// Update the DiscountCode type to match the database type
+type DiscountCode = {
+  id: string;
+  code: string;
+  percentage: number;
+  applicable_items: 'single' | 'multiple' | 'all';
+  items?: string[];
+  active: boolean;
+  expires_at?: string | null;
+};
+
 // Helper functions for formatting
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-US', {
@@ -72,6 +83,16 @@ export default function AdminPage() {
   
   // Add state for active category in import dropdown
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  
+  // Add state for discount codes
+  const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
+  const [newCode, setNewCode] = useState<string>('');
+  const [newDiscount, setNewDiscount] = useState<number>(10);
+  const [codeApplicability, setCodeApplicability] = useState<'single' | 'multiple' | 'all'>('all');
+  const [selectedItemsForCode, setSelectedItemsForCode] = useState<Set<string>>(new Set());
+  
+  // Add state to track loading status for discount codes
+  const [loadingDiscountCodes, setLoadingDiscountCodes] = useState(false);
   
   useEffect(() => {
     checkProducts();
@@ -300,6 +321,334 @@ export default function AdminPage() {
     setShowDropdown(!showDropdown);
   };
 
+  // Add function to update product details
+  const updateProduct = async (productId: string, productName: string) => {
+    try {
+      // Find the product in the local state
+      const product = dbProducts.find(p => p.id === productId);
+      if (!product) return;
+      
+      // Here you would normally open a modal with a form, but we'll use a simple prompt
+      const newName = prompt(`Update name for ${productName}:`, productName);
+      if (newName === null) return;
+      
+      // Show loading message
+      setMessage(`Updating ${productName}...`);
+      
+      // Update in database
+      const { error } = await supabase
+        .from('products')
+        .update({ name: newName })
+        .match({ id: productId });
+        
+      if (error) {
+        setMessage(`Error updating product: ${error.message}`);
+      } else {
+        // Update locally to avoid a full refresh
+        setDbProducts(prev => 
+          prev.map(p => p.id === productId ? {...p, name: newName} : p)
+        );
+        setMessage(`Product updated successfully`);
+      }
+    } catch (error: unknown) {
+      setMessage(`Exception updating product: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  // Load discount codes on initial load
+  useEffect(() => {
+    if (connectionStatus === 'connected') {
+      loadDiscountCodes();
+    }
+  }, [connectionStatus]);
+
+  // Function to load discount codes from database
+  const loadDiscountCodes = async () => {
+    setLoadingDiscountCodes(true);
+    try {
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) {
+        setMessage(`Error loading discount codes: ${error.message}`);
+      } else {
+        // Transform data to match local state structure
+        const formattedCodes = data.map(code => ({
+          id: code.id,
+          code: code.code,
+          percentage: code.percentage,
+          applicable_items: code.applicable_items as 'single' | 'multiple' | 'all',
+          items: code.items ? code.items as string[] : undefined,
+          active: code.active,
+          expires_at: code.expires_at
+        }));
+        setDiscountCodes(formattedCodes);
+      }
+    } catch (error: unknown) {
+      setMessage(`Exception loading discount codes: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setLoadingDiscountCodes(false);
+    }
+  };
+
+  // Update the create discount code function to save to database
+  const createDiscountCode = async () => {
+    if (!newCode.trim()) {
+      setMessage('Please enter a valid discount code');
+      return;
+    }
+    
+    try {
+      setMessage('Creating discount code...');
+      
+      // Create database record
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .insert({
+          code: newCode.toUpperCase().trim(),
+          percentage: newDiscount,
+          applicable_items: codeApplicability,
+          items: codeApplicability === 'multiple' ? Array.from(selectedItemsForCode) : null,
+          active: true
+        })
+        .select()
+        .single();
+        
+      if (error) {
+        if (error.code === '23505') { // Duplicate code error
+          setMessage(`A discount code with the name "${newCode.toUpperCase().trim()}" already exists.`);
+        } else {
+          setMessage(`Error creating discount code: ${error.message}`);
+        }
+        return;
+      }
+      
+      // Format the new code and add it to state
+      const newCodeEntry: DiscountCode = {
+        id: data.id,
+        code: data.code,
+        percentage: data.percentage,
+        applicable_items: data.applicable_items,
+        items: data.items,
+        active: data.active
+      };
+      
+      setDiscountCodes(prev => [newCodeEntry, ...prev]);
+      setMessage(`Discount code ${newCodeEntry.code} created successfully`);
+      
+      // Reset form
+      setNewCode('');
+      setNewDiscount(10);
+      setCodeApplicability('all');
+      setSelectedItemsForCode(new Set());
+    } catch (error: unknown) {
+      setMessage(`Exception creating discount code: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  // Update the toggle discount status function to update database
+  const toggleDiscountStatus = async (id: string) => {
+    try {
+      // Find the current code to toggle
+      const codeToToggle = discountCodes.find(code => code.id === id);
+      if (!codeToToggle) return;
+      
+      const newStatus = !codeToToggle.active;
+      
+      // Update in database
+      const { error } = await supabase
+        .from('discount_codes')
+        .update({ active: newStatus })
+        .eq('id', id);
+        
+      if (error) {
+        setMessage(`Error updating discount code: ${error.message}`);
+        return;
+      }
+      
+      // Update locally
+      setDiscountCodes(
+        discountCodes.map(code => 
+          code.id === id ? { ...code, active: newStatus } : code
+        )
+      );
+      
+      setMessage(`Discount code ${codeToToggle.code} ${newStatus ? 'activated' : 'deactivated'} successfully`);
+    } catch (error: unknown) {
+      setMessage(`Exception updating discount code: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  // Update the delete discount code function to delete from database
+  const deleteDiscountCode = async (id: string) => {
+    try {
+      // Find the code to delete for messaging
+      const codeToDelete = discountCodes.find(code => code.id === id);
+      if (!codeToDelete) return;
+      
+      // Delete from database
+      const { error } = await supabase
+        .from('discount_codes')
+        .delete()
+        .eq('id', id);
+        
+      if (error) {
+        setMessage(`Error deleting discount code: ${error.message}`);
+        return;
+      }
+      
+      // Update locally
+      setDiscountCodes(discountCodes.filter(code => code.id !== id));
+      setMessage(`Discount code ${codeToDelete.code} deleted successfully`);
+    } catch (error: unknown) {
+      setMessage(`Exception deleting discount code: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  // Fix the import button click handler to actually import to Supabase
+  const importSelectedProducts = async () => {
+    if (selectedProducts.size === 0) {
+      setMessage('No products selected for import.');
+      return;
+    }
+
+    try {
+      setMessage('Importing selected products...');
+      
+      // Get selected products from the products array with proper UUID formatting
+      const productsToImport = products
+        .filter(product => selectedProducts.has(product.id))
+        .map(product => {
+          // Convert numeric IDs to valid UUIDs
+          let formattedId = product.id;
+          if (/^\d+$/.test(product.id)) {
+            // If ID is purely numeric, convert to UUID format
+            const paddedId = product.id.padStart(12, '0');
+            formattedId = `00000000-0000-0000-0000-${paddedId}`;
+          }
+          
+          return {
+            id: formattedId,
+            name: product.name,
+            description: product.description || '',
+            price: product.price,
+            image_url: product.image_url || '',
+            stock: product.stock || 10,
+            category: product.category,
+            created_at: new Date().toISOString()
+          };
+        });
+      
+      console.log('Attempting to import products:', productsToImport);
+      
+      // Import products one by one for better error handling
+      let successCount = 0;
+      const errorMessages = [];
+      
+      for (const product of productsToImport) {
+        try {
+          const { error } = await supabase
+            .from('products')
+            .insert([product]);
+          
+          if (error) {
+            console.error(`Error importing ${product.name}:`, error);
+            errorMessages.push(`${product.name}: ${error.message}`);
+          } else {
+            successCount++;
+          }
+        } catch (err) {
+          console.error(`Exception importing ${product.name}:`, err);
+          errorMessages.push(`${product.name}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+      }
+      
+      // Refresh products list to show newly added products
+      await checkProducts();
+      
+      // Clear selection and close dropdown
+      setSelectedProducts(new Set());
+      setShowDropdown(false);
+      
+      // Success/failure message
+      if (successCount === productsToImport.length) {
+        setMessage(`Successfully imported all ${successCount} products.`);
+      } else if (successCount > 0) {
+        setMessage(`Partially successful: Imported ${successCount} out of ${productsToImport.length} products. 
+          Errors: ${errorMessages.slice(0, 3).join('; ')}${errorMessages.length > 3 ? '...' : ''}`);
+      } else {
+        setMessage(`Failed to import any products. Errors: ${errorMessages.slice(0, 3).join('; ')}${errorMessages.length > 3 ? '...' : ''}`);
+      }
+    } catch (error) {
+      console.error('Exception importing products:', error);
+      setMessage(`Failed to import products: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // Add a debug database connection function
+  const debugDatabaseConnection = async () => {
+    try {
+      setMessage('Checking database connection and structure...');
+      
+      // Check if the products table exists
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name')
+        .limit(1);
+        
+      if (error) {
+        console.error('Error accessing products table:', error);
+        setMessage(`Database issue: ${error.message || JSON.stringify(error)}`);
+        return;
+      }
+      
+      console.log('Products table exists and is accessible:', data);
+      
+      // Try to get the database schema for products table
+      // This is just for debugging purposes
+      const { data: rpcData, error: rpcError } = await supabase.rpc('get_schema_info');
+      
+      if (rpcError) {
+        console.log('Cannot get schema, trying direct query');
+        // Try other debugging approaches
+        const testUuid = '00000000-0000-0000-0000-000000000001';
+        const { error: testError } = await supabase
+          .from('products')
+          .insert([{
+            id: testUuid,
+            name: 'Test Product',
+            description: 'Test description',
+            price: 999,
+            image_url: '/test.jpg',
+            stock: 1,
+            category: 'test',
+            created_at: new Date().toISOString()
+          }]);
+          
+        if (testError) {
+          console.log('Test insert failed:', testError);
+          if (testError.message.includes('uuid')) {
+            setMessage('Confirmed: Database requires UUID format for product IDs. The import has been fixed to handle this.');
+          } else {
+            setMessage(`Test import failed: ${testError.message}`);
+          }
+        } else {
+          // Clean up the test product
+          await supabase.from('products').delete().eq('id', testUuid);
+          setMessage('Database connection is working correctly. Test import succeeded.');
+        }
+      } else {
+        console.log('Database schema info:', rpcData);
+        setMessage('Database connection and schema check successful. See console for details.');
+      }
+    } catch (error) {
+      console.error('Database debug error:', error);
+      setMessage(`Database check failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
@@ -435,7 +784,9 @@ export default function AdminPage() {
             </button>
           </h2>
           {collapsedWidgets.salesPerformance ? (
-            <div className="text-gray-600">Summary: Total revenue ${dbProducts.reduce((total, product) => total + ((product.sales || 0) * product.price), 0)}</div>
+            <div className="text-gray-600">
+              Summary: Total revenue {formatCurrency(dbProducts.reduce((total, product) => total + ((product.sales || 0) * product.price), 0))}
+            </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {/* Total sales */}
@@ -587,87 +938,93 @@ export default function AdminPage() {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
           Products Management
-          <div className="relative">
+          <div className="flex space-x-2">
             <button
-              onClick={toggleDropdown}
-              className="px-4 py-2 text-[#333533] rounded bg-[#F5CB5C] hover:bg-primary-dark shadow-md transition duration-300 ease-in-out transform hover:scale-105"
-              title="Import Products"
+              onClick={debugDatabaseConnection}
+              className="px-4 py-2 text-gray-700 rounded bg-gray-200 hover:bg-gray-300 shadow-md transition duration-300 ease-in-out transform hover:scale-105 mr-2"
+              title="Debug Database Connection"
             >
-              Import Products
+              Debug Connection
             </button>
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xs shadow-lg z-300">
-                <div className="p-4">
-                  <div className="flex mb-4 space-x-0">
-                    <button
-                      onClick={() => setActiveCategory('All')}
-                      className={`px-4 py-2 h-8 text-sm rounded-xs ${activeCategory === 'All' ? 'bg-[#333533] text-[#CFDBD5]' : 'bg-gray-200 text-gray-700'} transition duration-300 ease-in-out transform hover:scale-105`}
-                    >
-                      All
-                    </button>
-
-                    
-                    {categories.map(category => (
+            <div className="relative">
+              <button
+                onClick={toggleDropdown}
+                className="px-4 py-2 text-[#333533] rounded bg-[#F5CB5C] hover:bg-primary-dark shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+                title="Import Products"
+              >
+                Import Products
+              </button>
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xs shadow-lg z-300">
+                  <div className="p-4">
+                    <div className="flex mb-4 space-x-0">
                       <button
-                        key={category}
-                        onClick={() => setActiveCategory(category)}
-                        className={`px-4 py-2 h-8 text-sm rounded-xs ${activeCategory === category ? 'bg-[#333533] text-[#CFDBD5]' : 'bg-gray-200 text-gray-700'} transition duration-300 ease-in-out transform hover:scale-105`}
+                        onClick={() => setActiveCategory('All')}
+                        className={`px-4 py-2 h-8 text-sm rounded-xs ${activeCategory === 'All' ? 'bg-[#333533] text-[#CFDBD5]' : 'bg-gray-200 text-gray-700'} transition duration-300 ease-in-out transform hover:scale-105`}
                       >
-                        {category}
+                        All
                       </button>
-                    ))}
+
+                      
+                      {categories.map(category => (
+                        <button
+                          key={category}
+                          onClick={() => setActiveCategory(category)}
+                          className={`px-4 py-2 h-8 text-sm rounded-xs ${activeCategory === category ? 'bg-[#333533] text-[#CFDBD5]' : 'bg-gray-200 text-gray-700'} transition duration-300 ease-in-out transform hover:scale-105`}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex mb-4 justify-between">
+                    
+                    <div className="text-sm text-gray-600 mb-2">
+                      {`${selectedProducts.size}/${products.length} selected`}
+                    </div>
+                    <button
+                      onClick={() => setSelectedProducts(new Set())}
+                      className="text-sm text-[#333533] font-light hover:underline mb-2 cursor-pointer"
+                    >
+                      Clear All
+                    </button>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search products..."
+                      title="Search products"
+                      aria-label="Search products"
+                      className="w-full px-4 py-3 text-sm font-light mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary transition duration-300 ease-in-out transform hover:scale-105"
+                      onChange={(e) => setFilterName(e.target.value)}
+                    />
+                    <ul className="max-h-48 overflow-y-auto">
+                      {products.filter(p => (activeCategory === 'All' || p.category === activeCategory) && p.name.toLowerCase().includes(filterName.toLowerCase())).map(product => (
+                        <li key={product.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center text-sm font-light">
+                          <input
+                            type="checkbox"
+                            checked={selectedProducts.has(product.id)}
+                            onChange={() => toggleProductSelection(product.id)}
+                            className="mr-2"
+                            title={`Select ${product.name}`}
+                            aria-label={`Select ${product.name}`}
+                          />
+                          {product.name}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        importSelectedProducts();
+                      }}
+                      className={`w-full mt-4 px-4 py-3 rounded ${selectedProducts.size === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#F5CB5C] text-[#333533] hover:bg-[#F5CB5C]'} transition duration-300 ease-in-out transform hover:scale-105`}
+                      disabled={selectedProducts.size === 0}
+                    >
+                      Import Selected
+                    </button>
                   </div>
-                  <div className="flex mb-4 justify-between">
-                  
-                  <div className="text-sm text-gray-600 mb-2">
-                    {`${selectedProducts.size}/${products.length} selected`}
-                  </div>
-                  <button
-                    onClick={() => setSelectedProducts(new Set())}
-                    className="text-sm text-[#333533] font-light hover:underline mb-2 cursor-pointer"
-                  >
-                    Clear All
-                  </button>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    title="Search products"
-                    aria-label="Search products"
-                    className="w-full px-4 py-3 text-sm font-light mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary transition duration-300 ease-in-out transform hover:scale-105"
-                    onChange={(e) => setFilterName(e.target.value)}
-                  />
-                  <ul className="max-h-48 overflow-y-auto">
-                    {products.filter(p => (activeCategory === 'All' || p.category === activeCategory) && p.name.toLowerCase().includes(filterName.toLowerCase())).map(product => (
-                      <li key={product.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center text-sm font-light">
-                        <input
-                          type="checkbox"
-                          checked={selectedProducts.has(product.id)}
-                          onChange={() => toggleProductSelection(product.id)}
-                          className="mr-2"
-                          title={`Select ${product.name}`}
-                          aria-label={`Select ${product.name}`}
-                        />
-                        {product.name}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      const selectedProductNames = [...selectedProducts].map(id => 
-                        products.find(p => p.id === id)?.name || id
-                      ).join(", ");
-                      setMessage(`${selectedProducts.size} products imported: ${selectedProductNames}`);
-                    }}
-                    className={`w-full mt-4 px-4 py-3 rounded ${selectedProducts.size === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#F5CB5C] text-[#333533] hover:bg-[#F5CB5C]'} transition duration-300 ease-in-out transform hover:scale-105`}
-                    disabled={selectedProducts.size === 0}
-                  >
-                    Import Selected
-                  </button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </h2>
         
@@ -737,7 +1094,7 @@ export default function AdminPage() {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clipRule="evenodd" />
+                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V3a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <input 
@@ -855,42 +1212,28 @@ export default function AdminPage() {
                       </div>
                     </td>
                     <td className="px-4 py-2 border">
-                      <div className="flex items-center gap-2">
-                        <span>{formatNumber(product.sales || 0)}</span>
-                        {product.salesRank === 'top' && (
-                          <div className="flex items-center">
-                            <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded-full flex items-center">
-                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
-                              </svg>
-                              Top
-                            </span>
-                          </div>
-                        )}
-                        {product.salesRank === 'low' && (
-                          <div className="flex items-center">
-                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full flex items-center">
-                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                              </svg>
-                              Low
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                      {product.sales || 0}
+                      {product.salesRank === 'top' && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                          </svg>
+                          Top
+                        </span>
+                      )}
+                      {product.salesRank === 'low' && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                          <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          Low
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-2 border">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2">
                         <button
-                          onClick={() => {
-                            const newStock = prompt(`Update stock for ${product.name}:`, product.stock.toString());
-                            if (newStock !== null) {
-                              const stockValue = parseInt(newStock);
-                              if (!isNaN(stockValue) && stockValue >= 0) {
-                                updateStock(product.id, stockValue);
-                              }
-                            }
-                          }}
+                          onClick={() => updateProduct(product.id, product.name)}
                           className="p-2 rounded text-blue-600 hover:bg-blue-100 transition-colors"
                           title="Update product"
                         >
@@ -925,6 +1268,180 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+
+      {/* Discount Code Management */}
+      <div className="mt-8 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Discount Code Management</h2>
+        
+        <div className="bg-white p-6 border rounded-lg shadow-sm">
+          <h3 className="text-lg font-medium mb-4">Create New Discount Code</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="discount-code" className="block text-sm font-medium text-gray-700 mb-1">Discount Code</label>
+              <input
+                id="discount-code"
+                type="text"
+                value={newCode}
+                onChange={(e) => setNewCode(e.target.value)}
+                placeholder="e.g. SUMMER20"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                aria-label="Discount code"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="discount-percentage" className="block text-sm font-medium text-gray-700 mb-1">Discount Percentage</label>
+              <div className="relative">
+                <input
+                  id="discount-percentage"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={newDiscount}
+                  onChange={(e) => setNewDiscount(Number(e.target.value))}
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                  aria-label="Discount percentage"
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <label htmlFor="discount-applicability" className="block text-sm font-medium text-gray-700 mb-1">Applicable To</label>
+            <select
+              id="discount-applicability"
+              value={codeApplicability}
+              onChange={(e) => setCodeApplicability(e.target.value as 'single' | 'multiple' | 'all')}
+              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              aria-label="Discount applicability"
+            >
+              <option value="single">Single Item</option>
+              <option value="multiple">Multiple Items</option>
+              <option value="all">All Items</option>
+            </select>
+          </div>
+          
+          {codeApplicability === 'multiple' && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Select Products</label>
+              <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-md p-2">
+                {dbProducts.map(product => (
+                  <div key={product.id} className="flex items-center p-2 hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      id={`product-${product.id}`}
+                      checked={selectedItemsForCode.has(product.id)}
+                      onChange={() => {
+                        const newSelected = new Set(selectedItemsForCode);
+                        if (newSelected.has(product.id)) {
+                          newSelected.delete(product.id);
+                        } else {
+                          newSelected.add(product.id);
+                        }
+                        setSelectedItemsForCode(newSelected);
+                      }}
+                      className="mr-2"
+                    />
+                    <label htmlFor={`product-${product.id}`} className="select-none">{product.name}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <div className="mt-4">
+            <button
+              onClick={createDiscountCode}
+              className="px-4 py-2 bg-[#F5CB5C] text-[#333533] rounded hover:bg-[#F5CB5C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5CB5C]"
+            >
+              Create Discount Code
+            </button>
+          </div>
+        </div>
+        
+        {/* Discount Codes Table */}
+        <div className="mt-6">
+          <h3 className="text-lg font-medium mb-4">Active Discount Codes</h3>
+          <div className="overflow-x-auto">
+            {loadingDiscountCodes ? (
+              <div className="text-center py-4">Loading discount codes...</div>
+            ) : (
+              <table className="min-w-full bg-white border border-gray-200">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border">Code</th>
+                    <th className="px-4 py-2 border">Discount</th>
+                    <th className="px-4 py-2 border">Applicable To</th>
+                    <th className="px-4 py-2 border">Status</th>
+                    <th className="px-4 py-2 border">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {discountCodes.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-2 border text-center">No discount codes available</td>
+                    </tr>
+                  ) : (
+                    discountCodes.map(code => (
+                      <tr key={code.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 border font-medium">{code.code}</td>
+                        <td className="px-4 py-2 border">{code.percentage}%</td>
+                        <td className="px-4 py-2 border">
+                          {code.applicable_items === 'all' 
+                            ? 'All Products' 
+                            : code.applicable_items === 'single' 
+                              ? 'Single Product' 
+                              : `${code.items?.length || 0} Products`}
+                        </td>
+                        <td className="px-4 py-2 border">
+                          <span className={`px-2 py-1 rounded-full text-xs ${code.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                            {code.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 border">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => toggleDiscountStatus(code.id)}
+                              className={`p-2 rounded ${code.active ? 'text-yellow-600 hover:bg-yellow-100' : 'text-green-600 hover:bg-green-100'} transition-colors`}
+                              title={code.active ? 'Deactivate code' : 'Activate code'}
+                            >
+                              {code.active ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                              ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => deleteDiscountCode(code.id)}
+                              className="p-2 rounded text-red-600 hover:bg-red-100 transition-colors"
+                              title="Delete discount code"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 
+
+

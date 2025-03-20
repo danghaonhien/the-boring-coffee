@@ -17,9 +17,9 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.8,
-     roast_level: 20, // Light roast
+    roast_level: 15, // Light roast
     story: "Lightmode coffee was born from our founder's desire for a coffee that would energize morning coding sessions without the mid-day crash. Sourced from high-altitude farms in Ethiopia, these beans are carefully selected for their bright profile and distinctive citrus notes. Our light roasting process preserves the beans' natural complexity while developing a clean, crisp flavor profile that awakens the senses – just like switching your IDE to light mode after a long night of coding.",
-  how_to: [
+    how_to: [
       "Start with freshly roasted beans – Lightmode is best used within 2-3 weeks of the roast date",
       "Grind beans to medium-fine consistency, similar to table salt",
       "For pour-over: use 18g coffee to 300ml water at 195-205°F",
@@ -74,7 +74,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.5,
-     roast_level: 50, // Medium roast
+    roast_level: 50, // Medium roast
   },
   {
     id: '4',
@@ -82,7 +82,7 @@ export const products: Product[] = [
     name: 'Recursive',
     description: 'A complex blend that reveals new flavors with each sip. Calls itself.',
     price: 1699, // $16.99
-      image_url: '/images/darkmode.jpg',
+    image_url: '/images/darkmode.jpg',
     image_gallery: [
       '/images/darkmode.jpg',
       '/images/darkmode-detail-1.jpg',
@@ -92,7 +92,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.7,
-     roast_level: 65, // Medium-dark roast
+    roast_level: 65, // Medium-dark roast
   },
   {
     id: '5',
@@ -110,7 +110,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 3.9,
-     roast_level: 75, // Dark roast
+    roast_level: 80, // Dark roast
   },
   {
     id: '6',
@@ -118,7 +118,7 @@ export const products: Product[] = [
     name: 'Async',
     description: 'Patience required. This coffee promises to deliver its full flavor profile eventually.',
     price: 1649, // $16.49
-        image_url: '/images/darkmode.jpg',
+    image_url: '/images/darkmode.jpg',
     image_gallery: [
       '/images/darkmode.jpg',
       '/images/darkmode-detail-1.jpg',
@@ -128,7 +128,7 @@ export const products: Product[] = [
     stock: 100,
     category: 'coffee',
     rating: 4.3,
-     roast_level: 40, // Medium-light roast
+    roast_level: 35, // Medium-light roast
   },
   {
     id: '7',
@@ -233,7 +233,7 @@ export const products: Product[] = [
     stock: 50,
     category: 'coffee',
     rating: 4.5,
-     roast_level: 60, // Medium-dark roast
+    roast_level: 60, // Medium-dark roast
   },
   {
     id: '13',
@@ -251,7 +251,7 @@ export const products: Product[] = [
     stock: 80,
     category: 'coffee',
     rating: 4.7,
-     roast_level: 70, // Medium-dark roast
+    roast_level: 70, // Medium-dark roast
   },
   {
     id: '14',
@@ -287,9 +287,9 @@ export const products: Product[] = [
     stock: 30,
     category: 'coffee-kit',
     rating: 4.8,
-     roast_level: 50, // Medium roast
+    roast_level: 50, // Medium roast
     story: "Our Vietnamese Phin Kit combines tradition with quality. The Phin filter is an iconic brewing method that creates rich, intense coffee with a distinct profile. This starter kit gives you everything you need to begin your Vietnamese coffee journey—a premium Phin filter and your choice of our exceptional coffee blends. Simply add hot water and enjoy the slow, meditative brewing process.",
-  how_to: [
+    how_to: [
       "Place the metal filter chamber on top of a cup or glass",
       "Add 2-3 tablespoons of medium-coarse ground coffee",
       "Insert press filter and press down gently",

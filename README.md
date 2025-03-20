@@ -438,3 +438,110 @@ If your Supabase database doesn't have any products, you can seed it with sample
 # Run the seed script
 node seed-products.js
 ```
+
+## Discount Codes Setup
+
+To enable the discount codes feature, you need to run the SQL script in `discount_codes.sql` in your Supabase SQL editor:
+
+1. Go to your Supabase project dashboard
+2. Navigate to the SQL Editor tab
+3. Create a new query
+4. Copy and paste the contents of `discount_codes.sql`
+5. Run the query to create the discount_codes table and related functions
+
+Once the script is executed, the discount code functionality in the admin dashboard will be fully connected to your database.
+
+## Setting Up Admin Users
+
+After setting up the discount codes table, you'll need to assign the admin role to users who should have permission to manage discount codes:
+
+1. First, create a user through the normal registration process or use an existing user
+2. In your Supabase SQL Editor, run the following query to make a user an admin:
+
+```sql
+-- Replace the UUID with your user's ID
+SELECT create_admin_user('your-user-id-here');
+```
+
+3. You can find a user's ID by viewing the "Users" section in the Supabase dashboard
+4. Once a user has the admin role, they'll be able to manage discount codes in the admin panel
+
+To verify a user is an admin, you can run:
+
+```sql
+SELECT * FROM users WHERE role = 'admin';
+```
+
+Only users with the admin role can create, update, and delete discount codes.
+
+## Admin Authentication System
+
+The admin dashboard now includes a complete authentication system using Supabase. This ensures that only authorized users can access the admin functionality, including discount code management.
+
+### Setting Up Admin Authentication
+
+1. **Access the Admin Sign-Up Page**:
+   - Navigate to `/auth` in your browser
+   - Use the sign-up form to create an account
+
+2. **Assign Admin Role**:
+   - New users do not automatically have admin privileges
+   - After a user signs up, you'll need to manually assign them the admin role using the SQL function
+   - Run the following query in your Supabase SQL Editor:
+   ```sql
+   SELECT create_admin_user('user-id-from-supabase');
+   ```
+
+3. **Admin Authentication Flow**:
+   - When signing in at `/auth`, the system checks if the user has admin privileges
+   - Only users with the "admin" role can access the admin dashboard
+   - Non-admin users will see an error message
+
+4. **Security Features**:
+   - Row Level Security (RLS) ensures that only admins can manage discount codes
+   - Middleware protection prevents unauthorized access to admin routes
+   - Secure sign-out functionality included in the admin interface
+
+The authentication system uses Next.js middleware to protect admin routes and integrates seamlessly with Supabase Auth.
+
+## Fixing User Role Management
+
+If you encounter an error about the "role" column not existing when trying to create an admin user, follow these steps:
+
+### Step 1: Run the Fix Script
+
+1. Go to your Supabase SQL Editor
+2. Create a new query
+3. Copy and paste the contents of the `fix_users_table.sql` file
+4. Run the query to set up the correct table structure
+
+This script will:
+- Check for the existence of the users table in the public schema
+- Add a role column if it doesn't exist
+- Create a trigger to automatically add new auth users to the public.users table
+- Fix the admin user creation function
+
+### Step 2: Set Up Your Admin User
+
+After running the fix script, you can create an admin user:
+
+1. Sign up for an account at `/auth`
+2. Find your user ID in the Supabase Authentication dashboard
+3. Run the following query in the SQL Editor:
+
+```sql
+SELECT create_admin_user('your-user-id-here');
+```
+
+4. Sign in with your credentials at `/auth`
+5. You should now have access to the admin dashboard
+
+### Step 3: Verify Admin Status
+
+You can verify that a user has admin privileges by running:
+
+```sql
+SELECT * FROM public.users WHERE role = 'admin';
+```
+
+This should show all users with admin privileges in your system.
