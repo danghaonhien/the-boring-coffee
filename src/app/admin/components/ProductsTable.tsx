@@ -45,7 +45,15 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
       {loading ? (
         <div className="text-center py-4">Loading products...</div>
       ) : (
-        <table className="min-w-full bg-white border border-gray-200">
+        <table className="min-w-full bg-white border border-gray-200 table-fixed">
+          <colgroup>
+            <col style={{ width: '35%' }} /> {/* Name */}
+            <col style={{ width: '15%' }} /> {/* Category */}
+            <col style={{ width: '12%' }} /> {/* Price */}
+            <col style={{ width: '12%' }} /> {/* Stock */}
+            <col style={{ width: '15%' }} /> {/* Sales */}
+            <col style={{ width: '11%' }} /> {/* Actions */}
+          </colgroup>
           <thead>
             <tr>
               <th className="px-4 py-2 border">
@@ -66,7 +74,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
               <th className="px-4 py-2 border cursor-pointer hover:bg-gray-100" onClick={() => handleSortChange('category')}>
                 Category {sortOption.field === 'category' && (sortOption.direction === 'asc' ? '▲' : '▼')}
               </th>
-              <th className="px-4 py-2 border cursor-pointer hover:bg-gray-100" onClick={() => handleSortChange('price')}>
+              <th className="px-4 py-2 border cursor-pointer  hover:bg-gray-100" onClick={() => handleSortChange('price')}>
                 Price {sortOption.field === 'price' && (sortOption.direction === 'asc' ? '▲' : '▼')}
               </th>
               <th className="px-4 py-2 border cursor-pointer hover:bg-gray-100" onClick={() => handleSortChange('stock')}>
@@ -81,9 +89,9 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
           <tbody>
             {sortedProducts.map((product) => (
               <tr key={product.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border group">
+                <td className="px-4 py-2 border group truncate">
                   <div className="flex items-center">
-                    <div className="w-5 mr-2">
+                    <div className="w-5 mr-2 flex-shrink-0">
                       <input
                         type="checkbox"
                         checked={selectedProducts.has(product.id)}
@@ -93,13 +101,13 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
                         aria-label={`Select ${product.name}`}
                       />
                     </div>
-                    <span>{product.name}</span>
+                    <span className="truncate">{product.name}</span>
                   </div>
                 </td>
-                <td className="px-4 py-2 border">{product.category}</td>
-                <td className="px-4 py-2 border">${(product.price / 100).toFixed(2)}</td>
+                <td className="px-4 py-2 border truncate">{product.category}</td>
+                <td className="px-4 py-2 border text-left">${(product.price / 100).toFixed(2)}</td>
                 <td className="px-4 py-2 border">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <input
                       type="number"
                       min="0"
@@ -125,26 +133,28 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
                   </div>
                 </td>
                 <td className="px-4 py-2 border">
-                  {product.sales || 0}
-                  {product.salesRank === 'top' && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Top
-                    </span>
-                  )}
-                  {product.salesRank === 'low' && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                      <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Low
-                    </span>
-                  )}
+                  <div className="flex items-center">
+                    <span className="mr-1">{product.sales || 0}</span>
+                    {product.salesRank === 'top' && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">
+                        <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Top
+                      </span>
+                    )}
+                    {product.salesRank === 'low' && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 whitespace-nowrap">
+                        <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Low
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-2 border">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <button
                       onClick={() => updateProduct(product.id, product.name)}
                       className="p-2 rounded text-blue-600 hover:bg-blue-100 transition-colors"

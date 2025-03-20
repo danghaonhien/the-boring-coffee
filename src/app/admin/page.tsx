@@ -676,7 +676,7 @@ export default function AdminPage() {
     <div className="flex h-screen">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="flex-1 p-4 overflow-auto">
-        {message && (
+        {/* {message && (
           <div className="mb-4 p-3 bg-blue-100 border border-blue-200 rounded flex justify-between items-center">
             <span>{message}</span>
             <button 
@@ -689,7 +689,7 @@ export default function AdminPage() {
               </svg>
             </button>
           </div>
-        )}
+        )} */}
         
         {activeTab === 'home' && (
           <HomePage 
